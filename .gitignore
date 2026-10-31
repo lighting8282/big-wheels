@@ -1,0 +1,33 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/Screenshots/
+
+# IDE / project files
+.vs/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Misc
+*.log
+*.apk
+*.aab
+sysinfo.txt
+.DS_Store
+Thumbs.db
