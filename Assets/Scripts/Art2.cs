@@ -5,10 +5,10 @@ namespace BigWheels
     /// <summary>Second batch of procedural sprites: animals, new obstacles, the beach world, costumes and UI icons.</summary>
     public static class Art2
     {
-        public const int Cow = 0, Sheep = 1, Duck = 2, Crab = 3, Gull = 4;
-        public static Sprite[] Animal = new Sprite[5], Jelly = new Sprite[4];
+        public const int Cow = 0, Sheep = 1, Duck = 2, Crab = 3, Gull = 4, Penguin = 5, Bear = 6, Snowman = 7;
+        public static Sprite[] Animal = new Sprite[8], Jelly = new Sprite[4];
         public static Sprite Trampoline, StreamWater, Hat, FlagPole, FlagCloth, IconEyes, IconFlag, UiRingSel;
-        public static Sprite SkyBeach, HillSea, HillDunes;
+        public static Sprite SkyBeach, HillSea, HillDunes, SkySnow, HillMountains, HillSnow;
         static bool built;
 
         // Jelly flavours reuse the truck palette: pink, green, purple, orange
@@ -167,6 +167,52 @@ namespace BigWheels
                 p.SetPixels((x, y) => Color.Lerp(Palette.Hex("#fff1c9"), Palette.Hex("#5ec6ff"), (y + .5f) / p.H)));
             HillSea = Art.MakeHill(Art.HillFarPeriod, Art.HillFarWl, 14f, 56f, Palette.Hex("#42b9ea"));
             HillDunes = Art.MakeHill(Art.HillNearPeriod, Art.HillNearWl, 55f, 12f, Palette.Hex("#f7dfa0"));
+
+            SkySnow = Art.Make(0, 0, 4, 64, Vector2.zero, p =>
+                p.SetPixels((x, y) => Color.Lerp(Palette.Hex("#eef6fc"), Palette.Hex("#9cc6ec"), (y + .5f) / p.H)));
+            HillMountains = Art.MakeRidge(Art.HillFarPeriod, Art.HillFarWl, 150f, 56f, Palette.Hex("#bcd3ea"));
+            HillSnow = Art.MakeHill(Art.HillNearPeriod, Art.HillNearWl, 70f, 12f, Palette.Hex("#f4f9ff"));
+
+            var white = Palette.Hex("#f8fbff");
+            Animal[Penguin] = Art.Make(-34, -76, 38, 4, Vector2.zero, p =>
+            {
+                var navy = Palette.Hex("#2b3a55"); var orange = Palette.Hex("#ff9a1f");
+                p.Fill(Shapes.Ellipse(-8, -2, 10, 4.5f), orange, 3); p.Fill(Shapes.Ellipse(10, -2, 10, 4.5f), orange, 3);
+                p.Fill(Shapes.Ellipse(-21, -32, 6, 15), navy, 3); p.Fill(Shapes.Ellipse(23, -32, 6, 15), navy, 3);
+                p.Fill(Shapes.Ellipse(0, -32, 22, 30), navy, 4);
+                p.Fill(Shapes.Ellipse(3, -28, 14, 22), Color.white);
+                p.Fill(Shapes.Circle(2, -58, 13), navy, 4);
+                p.Fill(Shapes.Ellipse(6, -57, 8, 7), Color.white);
+                p.Fill(Shapes.Poly(11, -56, 25, -53, 11, -50), orange, 3);
+                p.Fill(Shapes.Circle(5, -61, 3), ink); p.Fill(Shapes.Circle(-1, -61, 3), ink);
+                p.Fill(Shapes.Circle(0, -55, 2.4f), new Color(1, .6f, .65f, .8f));
+            });
+            Animal[Bear] = Art.Make(-64, -76, 80, 4, Vector2.zero, p =>
+            {
+                var ice = Palette.Hex("#e6eef8");
+                foreach (float x in new[] { -34f, -18f, 22f, 38f }) p.Fill(Shapes.Capsule(x, -24, x, -3, 7), white, 3.5f);
+                p.Fill(Shapes.Circle(-52, -42, 7), white, 3.5f);
+                p.Fill(Shapes.RRect(-50, -58, 100, 40, 18), white, 4);
+                p.Fill(Shapes.Circle(45, -66, 7), white, 3.5f); p.Fill(Shapes.Circle(45, -66, 3), Palette.Hex("#ffb3c1"));
+                p.Fill(Shapes.Circle(60, -66, 7), white, 3.5f); p.Fill(Shapes.Circle(60, -66, 3), Palette.Hex("#ffb3c1"));
+                p.Fill(Shapes.Circle(52, -46, 20), white, 4);
+                p.Fill(Shapes.Ellipse(68, -40, 11, 9), ice, 3);
+                p.Fill(Shapes.Circle(75, -42, 3.6f), ink);
+                p.Fill(Shapes.Circle(55, -50, 2.8f), ink); p.Fill(Shapes.Circle(56, -51, 1f), Color.white);
+                p.Fill(Shapes.Arc(66, -36, 5, .2f * Mathf.PI, .8f * Mathf.PI, 1.2f), ink);
+            });
+            Animal[Snowman] = Art.Make(-40, -100, 40, 4, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.Capsule(-14, -54, -32, -66, 1.8f), Palette.Hex("#6b4428"), 2); p.Fill(Shapes.Capsule(14, -54, 32, -64, 1.8f), Palette.Hex("#6b4428"), 2);
+                p.Fill(Shapes.Circle(0, -20, 20), white, 4);
+                p.Fill(Shapes.Circle(0, -52, 15), white, 4);
+                p.Fill(Shapes.Capsule(-11, -64, 11, -64, 3.2f), Palette.Truck[0], 2.5f);
+                p.Fill(Shapes.Circle(0, -76, 11.5f), white, 4);
+                p.Fill(Shapes.RRect(-9, -96, 18, 11, 2), ink); p.Fill(Shapes.Capsule(-13, -85, 13, -85, 2.4f), ink);
+                p.Fill(Shapes.Circle(-4, -79, 1.7f), ink); p.Fill(Shapes.Circle(4, -79, 1.7f), ink);
+                p.Fill(Shapes.Poly(0, -77, 13, -74, 0, -72), Palette.Hex("#ff9a1f"), 2);
+                p.Fill(Shapes.Circle(0, -54, 2), ink); p.Fill(Shapes.Circle(0, -46, 2), ink); p.Fill(Shapes.Circle(0, -26, 2), ink);
+            });
         }
     }
 }

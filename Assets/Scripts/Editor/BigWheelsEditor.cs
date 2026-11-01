@@ -89,6 +89,14 @@ namespace BigWheels.EditorTools
             Step(g, 60);
             Shot(cam, rt, P("21_beach_jump"));
 
+            // snow world with its animals and falling snow
+            g.SetWorld(2); g.DebugAnimal(5, 260); g.DebugAnimal(6, 470); g.DebugAnimal(7, 700);
+            Step(g, 110);
+            Shot(cam, rt, P("22_snow"));
+            g.Tap(new Vector2(w * .5f, h * .5f));
+            Step(g, 70);
+            Shot(cam, rt, P("23_snow_jump"));
+
             // farm world: animals, then each new obstacle on its own
             g.SetWorld(0); g.DebugAnimal(0, 250); g.DebugAnimal(1, 520); g.DebugAnimal(2, 760);
             Step(g, 200);
@@ -104,7 +112,7 @@ namespace BigWheels.EditorTools
             int s = 0;
 
             // long random-ish session, cycling trucks and worlds, to shake out exceptions
-            Step(g, 60 * 90, f =>
+            Step(g, 60 * 160, f =>
             {
                 if (f % 100 == 20) g.Act();
                 if (f % 100 == 55) g.Act();

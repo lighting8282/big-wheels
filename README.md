@@ -8,8 +8,8 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 - The truck drives itself. Drive over a **car** to flatten it. Each flattened car fills one of the **three slots** at the top, and the third sets off confetti.
 - **Ramps and trampolines** launch the truck into a backflip, with balloons to pop in the air.
 - **Jelly piles** splat in bright colors and stick to the truck. **Mud puddles** do the same in brown. The **stream** (with ducks) and the **car wash** clean the truck off.
-- **Animals** wait by the road and cheer as the truck passes. Tap one to hear it.
-- **Tap the sun** to change the world. It also changes by itself about every 75 seconds (farm, then beach).
+- **Animals** wait by the road and cheer as the truck passes. Tap one to hear it. Farm: cow, sheep, duck. Beach: crab, seagull. Snow: penguin, polar bear, snowman.
+- **Tap the sun** to change the world. It also changes by itself about every 75 seconds (farm, beach, snow).
 
 ### Picture buttons
 
@@ -34,7 +34,7 @@ Everything is generated in code, so there are no art or audio files to manage.
 |---|---|
 | `Assets/Scripts/Game.cs` | Game logic, spawning, truck physics, worlds, animals and scene setup |
 | `Assets/Scripts/Trucks.cs` | The four truck types: sprites, wheel sizes and anchor points for costumes and special parts |
-| `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach, costumes) |
+| `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach and snow worlds, costumes) |
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
 | `Assets/Scripts/Editor/BigWheelsEditor.cs` | Project setup and a headless smoke test |
@@ -47,7 +47,7 @@ Unity has no built-in speech. Put recordings in `Assets/Resources/Voice/` named 
 
 ### Headless smoke test
 
-Plays every truck, both worlds, each new obstacle and a 90-second random session in landscape and portrait, and saves screenshots:
+Plays every truck, all three worlds, each new obstacle and a 90-second random session in landscape and portrait, and saves screenshots:
 
 ```bash
 unity run <project path> -- -executeMethod BigWheels.EditorTools.BigWheelsEditor.Smoke -shotDir <output dir>

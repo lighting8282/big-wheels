@@ -55,6 +55,9 @@ namespace BigWheels
             clips["quack"] = Compose("quack", new Voice(Wave.Square, 520, 380, .09f, .12f), new Voice(Wave.Square, 500, 360, .09f, .12f, .12f));
             clips["squawk"] = Compose("squawk", new Voice(Wave.Saw, 900, 500, .25f, .12f, 0, .04f), new Voice(Wave.Saw, 800, 480, .22f, .12f, .24f, .04f));
             clips["crab"] = Compose("crab", new Voice(Wave.Noise, 4000, 2000, .04f, .35f), new Voice(Wave.Noise, 4000, 2000, .04f, .35f, .09f), new Voice(Wave.Noise, 4000, 2000, .04f, .35f, .18f));
+            clips["peng"] = Compose("peng", new Voice(Wave.Square, 600, 950, .08f, .1f), new Voice(Wave.Square, 950, 520, .1f, .1f, .1f), new Voice(Wave.Square, 600, 950, .08f, .1f, .26f));
+            clips["roar"] = Compose("roar", new Voice(Wave.Saw, 125, 85, .7f, .2f, 0, .05f), new Voice(Wave.Noise, 700, 200, .6f, .12f));
+            clips["hoho"] = Compose("hoho", new Voice(Wave.Tri, 270, 200, .2f, .24f), new Voice(Wave.Tri, 270, 200, .2f, .24f, .28f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));

@@ -421,6 +421,23 @@ namespace BigWheels
             return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0, 0), 100f, 0, SpriteMeshType.FullRect);
         }
 
+        /// <summary>Like MakeHill but with sharp peaks (mountains).</summary>
+        public static Sprite MakeRidge(float period, float wl, float amp, float extra, Color col)
+        {
+            int w = Mathf.CeilToInt(period), h = Mathf.CeilToInt(amp + extra);
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            var px = new Color[w * h];
+            for (int x = 0; x < w; x++)
+            {
+                float a = x / wl;
+                float top = amp * (.35f + .65f * (1f - Mathf.Abs(Mathf.Sin(a * .5f)))) * (.8f + .2f * Mathf.Sin(a * .5f + 1f));
+                float curve = extra + top;
+                for (int y = 0; y < h; y++) px[y * w + x] = new Color(col.r, col.g, col.b, Mathf.Clamp01(curve - y + .5f));
+            }
+            tex.SetPixels(px); tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0, 0), 100f, 0, SpriteMeshType.FullRect);
+        }
+
         public static Sprite Make(float x0, float y0, float x1, float y1, Vector2 pivot, Action<Painter> draw)
         {
             var p = new Painter(x0, y0, x1, y1, pivot);

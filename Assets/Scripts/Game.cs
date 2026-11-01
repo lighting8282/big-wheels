@@ -22,7 +22,7 @@ namespace BigWheels
         const float Gravity = 1900f, Speed = 250f, Tau = Mathf.PI * 2f;
         public const int SlotCount = 3;
         const float WorldSeconds = 75f;
-        static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk" };
+        static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho" };
 
         // ---------- layout (logical px) ----------
         public Vector2 ScreenOverride;                 // set by tests; zero = use the real screen
@@ -39,7 +39,9 @@ namespace BigWheels
         public int ColorIndex, TruckType, World;
         public bool[] Costume = new bool[3];            // 0 party hat, 1 big eyes, 2 flag
         public float Clock => t;
-        float worldTimer, wipeT, sunBounce, digT, lidT, sprayT, sirenCd;
+        float worldTimer, wipeT, sunBounce, digT, lidT, sprayT, sirenCd, snowFade;
+        const int Flakes = 70;
+        readonly float[] flakeX = new float[Flakes], flakeY = new float[Flakes], flakeS = new float[Flakes];
         bool wipeApplied, digDumped;
 
         static void Kill(GameObject go) { if (Application.isPlaying) Destroy(go); else DestroyImmediate(go); }
@@ -58,7 +60,7 @@ namespace BigWheels
         }
         class Animal { public int kind; public float x, hopT; public bool cheered; public SpriteRenderer sr; }
         class Part { public int kind; public float x, y, vx, vy, g, r, rot, vr, life, max; public Color col; }
-        class Theme { public Sprite sky, hillFar, hillNear; public Color grass, dirt, dirtLt, dirtDk, bg; public bool shells; }
+        class Theme { public Sprite sky, hillFar, hillNear; public Color grass, dirt, dirtLt, dirtDk, bg; public bool shells, pines; }
         readonly Truck truck = new();
         TruckDef Def => Trucks.All[TruckType];
         public float TruckHeight => truck.h;
@@ -113,7 +115,9 @@ namespace BigWheels
             {
                 new Theme { sky = Art.Sky, hillFar = Art.HillFar, hillNear = Art.HillNear, grass = Palette.Grass, dirt = Palette.Dirt, dirtLt = Palette.DirtLt, dirtDk = Palette.DirtDk, bg = Palette.Sky2 },
                 new Theme { sky = Art2.SkyBeach, hillFar = Art2.HillSea, hillNear = Art2.HillDunes, grass = Palette.Hex("#f6dfa0"), dirt = Palette.Hex("#e6bd7a"),
-                            dirtLt = Palette.Hex("#f3d596"), dirtDk = Palette.Hex("#c99a55"), bg = Palette.Hex("#fff1c9"), shells = true }
+                            dirtLt = Palette.Hex("#f3d596"), dirtDk = Palette.Hex("#c99a55"), bg = Palette.Hex("#fff1c9"), shells = true },
+                new Theme { sky = Art2.SkySnow, hillFar = Art2.HillMountains, hillNear = Art2.HillSnow, grass = Palette.Hex("#f4f9ff"), dirt = Palette.Hex("#dbe9f5"),
+                            dirtLt = Palette.Hex("#eef6fc"), dirtDk = Palette.Hex("#b9d0e6"), bg = Palette.Hex("#eef6fc"), pines = true }
             };
 
             worldRoot = new GameObject("World").transform;
@@ -129,6 +133,7 @@ namespace BigWheels
             hud = new Hud(this, cam);
 
             spawnX = worldX + TX + 520; animalX = worldX + TX + 350;
+            for (int i = 0; i < Flakes; i++) { flakeX[i] = Random.value; flakeY[i] = Random.value; flakeS[i] = Random.value; }
             ApplyTheme(0);
             ComputeLayout();
             Render();
@@ -473,7 +478,7 @@ namespace BigWheels
 
         void SpawnAnimal(float x, int kind = -1)
         {
-            if (kind < 0) kind = World == 0 ? Random.Range(0, 3) : Random.Range(3, 5);
+            if (kind < 0) kind = World == 0 ? Random.Range(0, 3) : World == 1 ? Random.Range(3, 5) : Random.Range(5, 8);
             var a = new Animal { kind = kind, x = x, sr = MakeSR("Animal", Art2.Animal[kind], -45) };
             animals.Add(a);
         }
@@ -539,6 +544,14 @@ namespace BigWheels
             if (comboT > 0) { comboT -= dt; if (comboT <= 0) popCombo = 0; }
             for (int i = 0; i < SlotCount; i++) if (SlotPop[i] > 0) SlotPop[i] = Mathf.Max(0, SlotPop[i] - dt * 2.2f);
             if (sunBounce > 0) sunBounce = Mathf.Max(0, sunBounce - dt * 1.6f);
+            snowFade += ((World == 2 ? 1f : 0f) - snowFade) * Mathf.Min(1f, dt * 2f);
+            for (int i = 0; i < Flakes; i++)
+            {
+                flakeY[i] += (45f + flakeS[i] * 70f) * dt / Hl;
+                flakeX[i] += Mathf.Sin(t * 1.3f + i) * 14f * dt / Wl - 20f * dt / Wl;
+                if (flakeY[i] > 1f) { flakeY[i] -= 1f; flakeX[i] = Random.value; }
+                if (flakeX[i] < 0f) flakeX[i] += 1f;
+            }
             if (Celeb > 0)
             {
                 Celeb -= dt;
@@ -791,6 +804,13 @@ namespace BigWheels
                     Dot(centers.Next(), x, y - 3, 2.4f, 1.8f, new Color(1, 1, 1, .8f));
                     continue;
                 }
+                if (th.pines)
+                {
+                    var tr = stems.Next(); Quad(tr, x - 2f, y - 10, x + 2f, y); tr.color = Palette.Hex("#6b4428");
+                    Dot(petals.Next(), x, y - 20, 9, 13, Palette.Hex("#2f8f56"));
+                    Dot(centers.Next(), x, y - 28, 5.5f, 4f, new Color(1, 1, 1, .95f));
+                    continue;
+                }
                 var col = Palette.Truck[Mathf.FloorToInt(Hash(k + 3) * Palette.Truck.Length)];
                 var st = stems.Next(); Quad(st, x - 1.5f, y - 12, x + 1.5f, y); st.color = Palette.Hex("#2f8f45");
                 Dot(petals.Next(), x, y - 15, 6, 6, col);
@@ -958,6 +978,13 @@ namespace BigWheels
                 r.transform.rotation = Quaternion.Euler(0, 0, -p.rot * Mathf.Rad2Deg);
                 c.a = a; r.color = c;
             }
+            if (snowFade > .01f)
+                for (int i = 0; i < Flakes; i++)
+                {
+                    var r = pDot.Next(); float fr = 1.6f + flakeS[i] * 2.6f;
+                    r.transform.position = U(flakeX[i] * Wl, flakeY[i] * Hl); r.transform.rotation = Quaternion.identity;
+                    r.transform.localScale = Vector3.one * (fr * 2 / 100f); r.color = new Color(1, 1, 1, .9f * snowFade);
+                }
             pDot.End(); pStar.End(); pSq.End(); pBubble.End();
         }
     }
