@@ -23,6 +23,18 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 - **Right edge, bottom group:** costumes. Party hat, big eyes, flag. Each one toggles on and off.
 - The speaker button mutes everything.
 
+### Parent corner
+
+**Hold the speaker button for 2 seconds** (a ring fills while you hold; a quick tap still just mutes). The game pauses and a settings card opens:
+
+- **Volume:** master volume slider.
+- **Engine hum:** on or off.
+- **World:** Auto (changes by itself and when the sun is tapped), or lock to Farm, Beach or Snow.
+- **Break reminder:** off, or after 10, 20 or 30 minutes of play the screen turns into a calm night scene with a sleeping truck. A parent holds the green button for 2 seconds to keep playing.
+- **Reset sticker book:** tap twice to confirm.
+
+Settings are saved between sessions.
+
 ## Running it
 
 Open the project in **Unity 6000.4.0f1** (2D URP template, new Input System) and press Play. The scene is intentionally empty: `Game` builds the whole world at startup.
@@ -39,6 +51,7 @@ Everything is generated in code, so there are no art or audio files to manage.
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
 | `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 25 stickers (saved in PlayerPrefs), their small icons, and the sticker book screen |
+| `Assets/Scripts/Settings.cs`, `ParentUi.cs` | Saved parent settings, the hold-to-open button, the parent corner card and the break screen |
 | `Assets/Scripts/Editor/BigWheelsEditor.cs` | Project setup and a headless smoke test |
 
 Positions use "logical pixels" (y down, 100 px = 1 Unity unit), matching the original web prototype, so tuning numbers carry over.
@@ -49,7 +62,7 @@ Unity has no built-in speech. Put recordings in `Assets/Resources/Voice/` named 
 
 ### Headless smoke test
 
-Plays every truck, all three worlds, each new obstacle, the sticker book (including a save-and-reload check) and a 160-second random session in landscape and portrait, and saves screenshots:
+Plays every truck, all three worlds, each new obstacle, the sticker book, the parent corner and break screen (including save-and-reload checks) and a 160-second random session in landscape and portrait, and saves screenshots:
 
 ```bash
 unity run <project path> -- -executeMethod BigWheels.EditorTools.BigWheelsEditor.Smoke -shotDir <output dir>

@@ -53,7 +53,7 @@ namespace BigWheels.EditorTools
         static void Run(int w, int h, string dir, string tag)
         {
             Random.InitState(7);
-            Stickers.ResetAll();
+            Stickers.ResetAll(); Settings.ResetAll();
             Sfx.Muted = true;
             var go = new GameObject("Big Wheels");
             var g = go.AddComponent<Game>();
@@ -114,6 +114,23 @@ namespace BigWheels.EditorTools
             Step(g, 100); Shot(cam, rt, P("32_stream"));
             Step(g, 200);
             int s = 0;
+
+            // parent corner, break screen, and a locked world
+            g.OpenParent(); Step(g, 8);
+            Shot(cam, rt, P("60_parent"));
+            g.CloseParent(); Step(g, 5);
+            g.DebugBreak(); Step(g, 8);
+            Shot(cam, rt, P("61_break"));
+            g.DebugEndBreak(); Step(g, 5);
+            Settings.BreakMinutes = 20; Settings.WorldLock = 1; Settings.Volume = .4f;
+            Settings.ForgetCache();
+            Debug.Log($"[BigWheels] {tag}: settings reload break={Settings.BreakMinutes} lock={Settings.WorldLock} vol={Settings.Volume:F1} (expect 20 1 0.4)");
+            Settings.BreakMinutes = 0;
+            g.SetWorldLock(1);
+            int lockedWorld = -1;
+            Step(g, 60 * 80, f => { if (f == 60 * 79) lockedWorld = g.World; });
+            Debug.Log($"[BigWheels] {tag}: world after 80s with lock = {lockedWorld} (expect 1)");
+            Settings.WorldLock = -1; Settings.Volume = 1f;
 
             // long random-ish session, cycling trucks and worlds, to shake out exceptions
             Step(g, 60 * 160, f =>

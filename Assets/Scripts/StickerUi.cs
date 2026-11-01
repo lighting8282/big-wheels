@@ -104,7 +104,7 @@ namespace BigWheels
         public void Open()
         {
             if (open) return;
-            open = true; game.Paused = true; Stickers.MarkSeen();
+            open = true; game.Hold(true); Stickers.MarkSeen();
             bookBg.SetActive(true); bookRoot.gameObject.SetActive(true);
             SyncAnchors(); FitBook(); UpdateCells();
             Sfx.Play("swoosh");
@@ -113,7 +113,7 @@ namespace BigWheels
         public void Close()
         {
             if (!open) return;
-            open = false; game.Paused = false;
+            open = false; game.Hold(false);
             bookBg.SetActive(false); bookRoot.gameObject.SetActive(false);
             Sfx.Play("swoosh", .6f);
         }

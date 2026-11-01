@@ -39,16 +39,30 @@ namespace BigWheels
         public int ColorIndex, TruckType, World;
         public bool[] Costume = new bool[3];            // 0 party hat, 1 big eyes, 2 flag
         public float Clock => t;
-        bool paused;
-        /// <summary>True while the sticker book is open: the world stands still.</summary>
-        public bool Paused { get => paused; set { paused = value; Sfx.PauseEngine(value); } }
+        int pauseRefs; float playSeconds; bool noAward;
+        bool paused => pauseRefs > 0;
+        /// <summary>True while the sticker book, parent corner or break screen is up: the world stands still.</summary>
+        public bool Paused => paused;
+        public void Hold(bool on) { pauseRefs = Mathf.Max(0, pauseRefs + (on ? 1 : -1)); Sfx.PauseEngine(paused); }
+        public void ResetBreakTimer() { playSeconds = 0; }
+        public void OpenParent() => hud.OpenParent();
+        public void CloseParent() => hud.CloseParent();
+        public void DebugBreak() => hud.ShowBreak();
+        public void DebugEndBreak() => hud.HideBreak();
+        /// <summary>Parent setting: keep the world on one theme (-1 = let it change by itself).</summary>
+        public void SetWorldLock(int w)
+        {
+            worldTimer = 0;
+            if (w < 0) return;
+            noAward = true; ApplyTheme(w); noAward = false;
+        }
         public void OpenBook() => hud.OpenBook();
         public void CloseBook() => hud.CloseBook();
 
         /// <summary>Gives a sticker the first time something is discovered, with a pop-up that flies to the book.</summary>
         void Award(int id)
         {
-            if (!Started || hud == null) return;
+            if (!Started || hud == null || noAward) return;
             if (!Stickers.Add(id)) return;
             hud.Reward(id); Sfx.Play("tada"); Sfx.Say("yay", false);
             Stars(worldX + Wl * .5f, Hl * .35f, 16, new[] { Palette.Sun, Color.white, Palette.Hex("#ff6eb4") }, 360);
@@ -148,7 +162,7 @@ namespace BigWheels
 
             spawnX = worldX + TX + 520; animalX = worldX + TX + 350;
             for (int i = 0; i < Flakes; i++) { flakeX[i] = Random.value; flakeY[i] = Random.value; flakeS[i] = Random.value; }
-            ApplyTheme(0);
+            ApplyTheme(Settings.WorldLock >= 0 ? Settings.WorldLock : 0);
             ComputeLayout();
             Render();
         }
@@ -276,7 +290,7 @@ namespace BigWheels
         void SunTap()
         {
             sunBounce = 1; Sfx.Play("sparkle"); Award(24);
-            if (wipeT <= 0) StartWipe();
+            if (wipeT <= 0 && Settings.WorldLock < 0) StartWipe();
         }
 
         void StartWipe() { wipeT = .0001f; wipeApplied = false; worldTimer = 0; Sfx.Play("swoosh"); }
@@ -512,6 +526,11 @@ namespace BigWheels
         // ================= simulation =================
         void UpdateSim(float dt)
         {
+            if (Started && Settings.BreakMinutes > 0)
+            {
+                playSeconds += dt;
+                if (playSeconds >= Settings.BreakMinutes * 60f) { playSeconds = 0; hud.ShowBreak(); }
+            }
             t += dt; worldX += Speed * dt; truck.wheel += Speed * dt / Def.WheelR; sirenCd -= dt;
             float cx = worldX + TX;
             while (spawnX < worldX + Wl + 300) Spawn();
@@ -578,7 +597,7 @@ namespace BigWheels
 
             // the world changes by itself now and then, with a soft white wipe
             worldTimer += dt;
-            if (wipeT <= 0 && worldTimer > WorldSeconds && Celeb <= 0) StartWipe();
+            if (wipeT <= 0 && worldTimer > WorldSeconds && Celeb <= 0 && Settings.WorldLock < 0) StartWipe();
             if (wipeT > 0)
             {
                 wipeT += dt / 1.3f;

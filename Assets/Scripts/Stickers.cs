@@ -69,7 +69,7 @@ namespace BigWheels
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconBook, IconClose, Barn, Wave, Flake;
+        public static Sprite IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
 
@@ -84,6 +84,18 @@ namespace BigWheels
                 p.Fill(Shapes.Capsule(-22, -19, -22, 19, 3), Palette.Shade(Palette.Truck[0], -.3f));
                 p.Fill(Shapes.Star(3, 0, 13), Palette.Sun, 2.5f);
             });
+            var pc = new Painter(-50, -50, 50, 50, Vector2.zero);
+            pc.Fill(Shapes.RRect(-47, -47, 94, 94, 14), Color.white, 3);
+            Card = pc.ToSprite(new Vector4(34, 34, 34, 34));
+            Moon = Art.Make(-60, -60, 60, 60, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.Circle(0, 0, 52), Palette.Hex("#fff2b0"), 5);
+                p.Fill(Shapes.Arc(-18, -4, 9, .15f * Mathf.PI, .85f * Mathf.PI, 2.6f), ink);
+                p.Fill(Shapes.Arc(18, -4, 9, .15f * Mathf.PI, .85f * Mathf.PI, 2.6f), ink);
+                p.Fill(Shapes.Arc(0, 16, 7, .15f * Mathf.PI, .85f * Mathf.PI, 2.2f), ink);
+                p.Fill(Shapes.Circle(-30, 12, 7), new Color(1, .5f, .55f, .45f)); p.Fill(Shapes.Circle(30, 12, 7), new Color(1, .5f, .55f, .45f));
+            });
+            SleepEye = Art.Make(-22, -14, 22, 14, Vector2.zero, p => p.Fill(Shapes.Arc(0, -5, 13, .15f * Mathf.PI, .85f * Mathf.PI, 2.8f), ink));
             IconClose = Art.Make(-22, -22, 22, 22, Vector2.zero, p =>
             {
                 p.Fill(Shapes.Capsule(-12, -12, 12, 12, 4.5f), ink);

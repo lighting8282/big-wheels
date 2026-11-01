@@ -174,12 +174,12 @@ namespace BigWheels
         public int H => h;
         public float Y1 => y1;
 
-        public Sprite ToSprite()
+        public Sprite ToSprite(Vector4 border = default)
         {
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
             tex.SetPixels(pix); tex.Apply(false, true);
             var pv = new Vector2((pivotLogical.x - x0) / (x1 - x0), (y1 - pivotLogical.y) / (y1 - y0));
-            return Sprite.Create(tex, new Rect(0, 0, w, h), pv, 100f * Scale, 0, SpriteMeshType.FullRect);
+            return Sprite.Create(tex, new Rect(0, 0, w, h), pv, 100f * Scale, 0, SpriteMeshType.FullRect, border);
         }
     }
 

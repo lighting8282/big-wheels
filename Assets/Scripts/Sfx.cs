@@ -22,7 +22,8 @@ namespace BigWheels
         static bool muted;
         static float lastSay;
 
-        public static bool Muted { get => muted; set { muted = value; AudioListener.volume = value ? 0f : 1f; if (value && voice) voice.Stop(); } }
+        public static bool Muted { get => muted; set { muted = value; ApplyVolume(); if (value && voice) voice.Stop(); } }
+        public static void ApplyVolume() { AudioListener.volume = muted ? 0f : Settings.Volume; }
 
         public static void Init(GameObject host)
         {
@@ -67,13 +68,15 @@ namespace BigWheels
             for (int i = 0; i < blips.Length; i++) blips[i] = Compose("blip" + i, new Voice(Wave.Sine, 700 + i * 230, 0, .09f, .1f));
 
             engine.clip = EngineLoop();
+            ApplyVolume();
         }
 
         public static void Play(string name, float vol = 1f) { if (!muted && src && clips.TryGetValue(name, out var c)) src.PlayOneShot(c, vol); }
         public static void Pop(int i) { if (!muted && src) src.PlayOneShot(pops[i % pops.Length]); }
         public static void Blip() { if (!muted && src) src.PlayOneShot(blips[UnityEngine.Random.Range(0, blips.Length)]); }
 
-        public static void StartEngine() { if (engine && !engine.isPlaying) engine.Play(); }
+        public static void StartEngine() { if (engine && Settings.EngineOn && !engine.isPlaying) engine.Play(); }
+        public static void SetEngineEnabled(bool on) { if (!engine) return; if (on) { if (!engine.isPlaying) engine.Play(); } else engine.Stop(); }
         public static void PauseEngine(bool p) { if (engine) engine.volume = p ? 0f : .05f; }
         public static void SetEngine(float freq) { if (engine) engine.pitch = freq / 48f; }
 

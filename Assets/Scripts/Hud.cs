@@ -26,6 +26,7 @@ namespace BigWheels
         readonly GameObject play;
         bool needLayout = true;
         StickerUi sticker;
+        ParentUi parentUi;
         int lastColor = -1;
         Vector2 lastScreen;
 
@@ -74,7 +75,12 @@ namespace BigWheels
             // sound toggle (top right)
             var snd = sndRt = Rt("Sound", safe); Anchor(snd, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -24), new Vector2(96, 96));
             Img(snd, Art.UiRingFilled, Color.white);
-            snd.gameObject.AddComponent<Button>().onClick.AddListener(() => sndIcon.sprite = game.ToggleMute() ? Art.SpeakerOff : Art.SpeakerOn);
+            var hold = snd.gameObject.AddComponent<HoldButton>();
+            hold.OnTap = () => sndIcon.sprite = game.ToggleMute() ? Art.SpeakerOff : Art.SpeakerOn;
+            hold.OnHold = () => parentUi.Open();
+            var hr = Rt("HoldRing", snd); Stretch(hr);
+            var hri = Img(hr, Art2.UiRingSel, new Color(1f, .78f, .2f, .95f)); hri.type = Image.Type.Filled; hri.fillMethod = Image.FillMethod.Radial360; hri.fillAmount = 0; hri.raycastTarget = false;
+            hold.Progress = hri;
             var ic = Rt("Icon", snd); Anchor(ic, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(60, 60));
             sndIcon = Img(ic, Art.SpeakerOn, Color.white); sndIcon.raycastTarget = false;
 
@@ -111,6 +117,7 @@ namespace BigWheels
             Img(tri, Art.PlayTriangle, Color.white).raycastTarget = false;
             play = playRt.gameObject;
             sticker = new StickerUi(game, cgo.transform, safe);
+            parentUi = new ParentUi(game, cgo.transform);
         }
 
         public void Refresh(Game g)
@@ -127,6 +134,7 @@ namespace BigWheels
             }
             if (needLayout) FitLayout();
             sticker.Refresh(g.Clock);
+            parentUi.Tick(g.Clock);
             play.SetActive(!g.Started);
             if (!g.Started) playRt.localScale = Vector3.one * (1f + .08f * Mathf.Sin(g.Clock * 5f));
 
@@ -156,6 +164,10 @@ namespace BigWheels
         }
 
         public void Reward(int id) => sticker.Show(id);
+        public void OpenParent() => parentUi.Open();
+        public void CloseParent() => parentUi.Close();
+        public void ShowBreak() => parentUi.ShowBreak();
+        public void HideBreak() => parentUi.EndBreak();
         public void OpenBook() => sticker.Open();
         public void CloseBook() => sticker.Close();
         public bool BookOpen => sticker.IsOpen;
@@ -176,6 +188,7 @@ namespace BigWheels
             sndRt.sizeDelta = new Vector2(sndS, sndS); sndRt.anchoredPosition = new Vector2(-18, -18);
             sndIcon.rectTransform.sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
             sticker.Fit(cw, ch, sndS);
+            parentUi.Fit(cw, ch);
 
             float top = 18 + sndS + 10;
             float bs = Mathf.Clamp((ch - top - 24 - 7 * 8 - 10) / 7f, 36f, 64f);
