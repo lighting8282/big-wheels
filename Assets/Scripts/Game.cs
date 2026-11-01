@@ -220,7 +220,7 @@ namespace BigWheels
                 eyes[i] = MakeSR("Eye", Art.EyeWhite, 2, bodyT);
                 eyes[i].transform.localPosition = new Vector3(d.Eyes[i].x / 100f, -d.Eyes[i].y / 100f, 0);
                 pupils[i] = MakeSR("Pupil", Art.Pupil, 3, eyes[i].transform);
-                wheels[i] = MakeSR("Wheel", Art.Wheel, 5, pivot);
+                wheels[i] = MakeSR("Wheel", Art.WheelToy[ColorIndex], 5, pivot);
                 wheels[i].transform.localPosition = new Vector3(d.WheelX[i] / 100f, (d.WheelR - d.PivotY) / 100f, 0);
                 wheels[i].transform.localScale = Vector3.one * (d.WheelR / 46f);
             }
@@ -363,6 +363,7 @@ namespace BigWheels
         {
             if (!Started) StartGame();
             ColorIndex = i; body.sprite = Def.Body[i];
+            foreach (var w in wheels) w.sprite = Art.WheelToy[i];
             if (arm) arm.sprite = Def.Arm[i];
             if (lid) lid.sprite = Def.Lid[i];
             truck.bobV += 300;

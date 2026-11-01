@@ -46,6 +46,7 @@ namespace BigWheels
                     var body = Shapes.RRect(-100, -96, 196, 46, 12);
                     p.Fill(body, c);
                     p.Fill(Shapes.RRect(-104, -76, 204, 8, 0), lt, 0, null, body);
+                    p.Fill(Shapes.RRect(-92, -92, 150, 8, 4), new Color(1, 1, 1, .5f), 0, null, body);
                     p.Fill(body, T, 5);
                     p.Fill(Shapes.Circle(62, -100, 9), Palette.Steel, 4);
                     p.Fill(Shapes.Circle(90, -78, 6), Palette.Hex("#fff6a8"), 3.5f);
@@ -78,6 +79,7 @@ namespace BigWheels
                     var body = Shapes.RRect(-122, -100, 244, 56, 10);
                     p.Fill(body, c);
                     p.Fill(Shapes.RRect(-130, -80, 270, 9, 0), lt, 0, null, body);
+                    p.Fill(Shapes.RRect(-112, -96, 200, 8, 4), new Color(1, 1, 1, .5f), 0, null, body);
                     p.Fill(body, T, 5);
                     // ladder on the roof
                     foreach (float x in new[] { -100f, 30f }) p.Fill(Shapes.Capsule(x, -100, x, -112, 2.5f), Palette.Steel, 2.5f);
@@ -113,6 +115,7 @@ namespace BigWheels
                     var hop = Shapes.RRect(-122, -130, 152, 86, 12);
                     p.Fill(hop, c);
                     for (int k = 0; k < 4; k++) p.Fill(Shapes.Capsule(-96 + 34 * k, -122, -96 + 34 * k, -52, 2.5f), lt, 0, null, hop);
+                    p.Fill(Shapes.RRect(-112, -126, 120, 9, 4), new Color(1, 1, 1, .5f), 0, null, hop);
                     p.Fill(hop, T, 5);
                     p.Fill(Shapes.RRect(-126, -80, 18, 30, 5), Palette.Hex("#1d1d33"), 3);
                     p.Fill(Shapes.RRect(34, -118, 88, 74, 14), c, 5);

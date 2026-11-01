@@ -206,7 +206,8 @@ namespace BigWheels
     public static class Art
     {
         public static Sprite White, Dot, Square, Star, Bubble, Shadow, Sky;
-        public static Sprite[] Body, Car, Balloon, SwatchNormal, SwatchSelected;
+        public static Sprite[] Body, Car, Balloon, SwatchNormal, SwatchSelected, WheelToy;
+        static readonly int[] RimFor = { 4, 4, 5, 6, 2, 3, 4 };   // each tire color gets a contrasting rim color
         public static Sprite Wheel, EyeWhite, Pupil, Mud, Ramp, Puddle, WashBack, Strip, SunNormal, SunHappy, SunRays, Cloud;
         public static Sprite SpeakerOn, SpeakerOff, PlayTriangle, UiRing, UiRingFilled, SlotEmpty, Roundrect;
         public static Sprite HillFar, HillNear;
@@ -257,23 +258,67 @@ namespace BigWheels
             });
 
             int n = Palette.Truck.Length;
+            WheelToy = new Sprite[n];
             Body = new Sprite[n]; Car = new Sprite[n]; Balloon = new Sprite[n]; SwatchNormal = new Sprite[n]; SwatchSelected = new Sprite[n];
             for (int i = 0; i < n; i++)
             {
                 Color c = Palette.Truck[i], lt = Palette.Shade(c, .4f);
-                Body[i] = Make(-128, -204, 128, -66, Vector2.zero, p =>
+                // toy monster truck: glossy plastic body on an exposed black chassis with coil springs, roll cage, bull bar and stripes
+                Body[i] = Make(-134, -228, 134, -4, Vector2.zero, p =>
                 {
+                    Color dk = Palette.Shade(c, -.32f), black = Palette.Hex("#17171b"), chassis = Palette.Hex("#1c1c20"), none = new Color(0, 0, 0, 0);
+                    p.Fill(Shapes.RRect(-46, -98, 92, 72, 10), chassis, 4);
+                    for (int k = 0; k < 3; k++) p.Fill(Shapes.RRect(-38, -90 + k * 14, 76, 7, 3), Palette.Hex("#2e2e35"));
+                    p.Fill(Shapes.RRect(-12, -94, 24, 62, 4), Palette.Hex("#26262c"), 3);
+                    p.Fill(Shapes.Circle(0, -60, 6.5f), Palette.Steel, 3);
+                    p.Fill(Shapes.Capsule(-84, -48, -22, -66, 5), Palette.Hex("#111116"));
+                    p.Fill(Shapes.Capsule(84, -48, 22, -66, 5), Palette.Hex("#111116"));
+                    foreach (float sx in new[] { -22f, 22f })
+                        for (int k = 0; k < 5; k++)
+                            p.Fill(Shapes.Capsule(sx - 8, -70 + k * 8, sx + 8, -66 + k * 8, 1.7f), Palette.Hex("#d5d9e2"));
                     p.Fill(Shapes.RRect(-106, -196, 12, 74, 5), Palette.Steel, 4);
                     p.Fill(Shapes.RRect(-90, -190, 12, 68, 5), Palette.Steel, 4);
                     p.Fill(Shapes.Poly(-80, -128, -58, -194, 40, -194, 62, -128), c, 5);
                     p.Fill(Shapes.Poly(-66, -134, -48, -186, 30, -186, 46, -134), Palette.Glass, 4);
                     var body = Shapes.RRect(-112, -128, 224, 56, 16);
                     p.Fill(body, c);
-                    p.Fill(Shapes.RRect(-120, -108, 240, 12, 0), lt, 0, null, body);
-                    p.Fill(body, new Color(0, 0, 0, 0), 5);
+                    p.Fill(Shapes.RRect(-120, -92, 240, 22, 0), dk, 0, null, body);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        float x = -64 + k * 24;
+                        p.Fill(Shapes.Poly(x, -126, x + 10, -126, x - 8, -94, x - 18, -94), dk, 0, null, body);
+                    }
+                    p.Fill(Shapes.RRect(-100, -124, 150, 9, 4), new Color(1, 1, 1, .5f), 0, null, body);
+                    p.Fill(body, none, 5);
+                    p.Fill(Shapes.Arc(-78, -46, 52, -Mathf.PI, 0, 4.5f), dk);
+                    p.Fill(Shapes.Arc(78, -46, 52, -Mathf.PI, 0, 4.5f), dk);
+                    p.Fill(Shapes.Circle(26, -102, 14), Color.white, 3.5f);
+                    p.Fill(Shapes.Star(26, -102, 9), dk);
                     p.Fill(Shapes.Arc(58, -116, 18, .15f * Mathf.PI, .85f * Mathf.PI, 2.5f), ink);
-                    p.Fill(Shapes.Circle(100, -118, 8), Palette.Hex("#fff6a8"), 4);
-                    p.Fill(Shapes.RRect(104, -98, 14, 24, 5), Palette.Steel, 4);
+                    p.Fill(Shapes.RRect(70, -140, 32, 14, 4), black, 3);
+                    for (int k = 0; k < 3; k++) p.Fill(Shapes.Capsule(78 + k * 9, -137, 78 + k * 9, -129, 1.3f), Palette.Hex("#5a5a62"));
+                    p.Fill(Shapes.Capsule(-70, -132, -60, -208, 3.6f), black);
+                    p.Fill(Shapes.Capsule(-60, -208, 38, -208, 3.6f), black);
+                    p.Fill(Shapes.Capsule(38, -208, 56, -132, 3.6f), black);
+                    p.Fill(Shapes.RRect(-30, -224, 56, 10, 3), Palette.Hex("#26262c"), 2.5f);
+                    for (int k = 0; k < 4; k++) p.Fill(Shapes.Circle(-20 + k * 14, -219, 3), Palette.Sun);
+                    p.Fill(Shapes.Capsule(114, -130, 128, -130, 3.5f), black);
+                    p.Fill(Shapes.Capsule(128, -130, 128, -82, 3.5f), black);
+                    p.Fill(Shapes.Capsule(128, -82, 114, -82, 3.5f), black);
+                    p.Fill(Shapes.Capsule(114, -106, 128, -106, 3.2f), black);
+                    p.Fill(Shapes.Circle(104, -112, 9), Palette.Hex("#e9edf3"), 3.5f);
+                    p.Fill(Shapes.Circle(104, -112, 5), Palette.Hex("#fff6a8"));
+                    p.Fill(Shapes.RRect(104, -92, 16, 18, 5), Palette.Steel, 4);
+                });
+                WheelToy[i] = Make(-50, -50, 50, 50, Vector2.zero, p =>
+                {
+                    Color rim = Palette.Truck[RimFor[i]], tire = Palette.Shade(c, -.06f), lug = Palette.Shade(c, -.32f), spoke = Palette.Shade(rim, -.35f);
+                    for (int k = 0; k < 14; k++) p.Fill(Shapes.RRect(-6.5f, -48, 13, 12, 4, k * (360f / 14f)), lug, 2.6f);
+                    p.Fill(Shapes.Circle(0, 0, 41), tire, 4.5f);
+                    for (int k = 0; k < 10; k++) p.Fill(Shapes.RRect(-3.5f, -35, 7, 9, 2.5f, k * 36f), lug);
+                    p.Fill(Shapes.Circle(0, 0, 23), rim, 4);
+                    for (int k = 0; k < 5; k++) p.Fill(Shapes.RRect(-2.6f, -20, 5.2f, 20, 2.5f, k * 72f), spoke);
+                    p.Fill(Shapes.Circle(0, 0, 5.5f), Palette.Steel, 2.6f);
                 });
                 Car[i] = Make(-74, -68, 74, 2, Vector2.zero, p => DrawCar(p, c));
                 Balloon[i] = Make(-34, -38, 34, 82, Vector2.zero, p =>
