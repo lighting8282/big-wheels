@@ -4,9 +4,10 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 
 ## How to play
 
-- **Tap anywhere** to jump. Tap again in the air to do a front flip. (Desktop: Space or Up Arrow.)
+- **Tap anywhere** to jump. Tap again in the air to do a front flip. (Desktop: Space or Up Arrow; **F11** toggles fullscreen.)
 - The truck drives itself. Drive over a **car** to flatten it. Each flattened car fills one of the **three slots** at the top, and the third sets off confetti.
-- **Smash it:** wooden **crates**, a **brick wall** and **bowling pins** stand in the road. Drive into them and they burst into pieces that bounce along the ground. Jump high enough and the truck sails over them (and crushes them on the way down).
+- **Smash it:** wooden **crates**, a **brick wall**, **bowling pins**, a **glass wall** and a **picket fence** stand in the road, often in pairs. Drive into them and they burst into pieces that bounce along the ground. **Red barrels explode** and set off everything standing near them. Jump high enough and the truck sails over a prop (and crushes it on the way down).
+- **Score:** every smash, crushed car, popped balloon, jelly splat and landed flip adds points, with a **combo multiplier** (up to x5, doubled in turbo) while you keep hitting things within three seconds of each other. The score and your **best** are in the panel at the top left, with "+points" floating up from each hit. The best score is saved.
 - **Turbo:** every smash and every flattened car lights one of the **four flames** under the slots. The fourth starts about six seconds of turbo: the truck speeds up, trails flames, throws speed lines and smashes things from farther away. There is no way to lose, and nothing ever slows the truck.
 - **Ramps and trampolines** launch the truck into a backflip, with balloons to pop in the air.
 - **Jelly piles** splat in bright colors and stick to the truck. **Mud puddles** do the same in brown. The **stream** (with ducks) and the **car wash** clean the truck off.
@@ -28,13 +29,15 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 
 ### Parent corner
 
-**Hold the speaker button for 2 seconds** (a ring fills while you hold; a quick tap still just mutes). The game pauses and a settings card opens:
+**Tap the gear button** under the sticker book (or hold the speaker button for 2 seconds; a quick tap on the speaker still just mutes). The game pauses and a settings card opens:
 
 - **Volume:** master volume slider.
 - **Engine hum:** on or off.
 - **World:** Auto (changes by itself and when the sun is tapped), or lock to Farm, Beach, Snow or Night.
 - **Break reminder:** off, or after 10, 20 or 30 minutes of play the screen turns into a calm night scene with a sleeping truck. A parent holds the green button for 2 seconds to keep playing.
-- **Reset sticker book:** tap twice to confirm.
+- **Screen** (desktop builds): windowed or fullscreen (also F11).
+- **Enlarge window:** steps through 960x540, 1280x720, 1600x900, 1920x1080 and 2560x1440 (only sizes that fit your desktop) and wraps back to the smallest. The window can also be dragged to any size or maximised. Tapping it while fullscreen leaves fullscreen.
+- **Reset stickers and score:** tap twice to confirm. Clears the sticker book and the best score.
 
 Settings are saved between sessions.
 
@@ -53,7 +56,8 @@ Everything is generated in code, so there are no art or audio files to manage.
 | `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach, snow and night worlds, costumes) |
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
-| `Assets/Scripts/Smash.cs` | Smashable props (crates, bricks, pins) and their art, flying debris, the four-flame turbo meter and screen shake (a `partial` of `Game`) |
+| `Assets/Scripts/Smash.cs` | Smashable props (crates, bricks, pins, barrels, glass, fence) and their art, flying debris, chain explosions, the four-flame turbo meter and screen shake (a `partial` of `Game`) |
+| `Assets/Scripts/Score.cs`, `Display.cs` | Score, combo and the saved best score (a `partial` of `Game`); fullscreen and window-size options for desktop builds |
 | `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 31 stickers (saved in PlayerPrefs; the bit mask is an int, so keep it at 31 or fewer), their small icons, and the sticker book screen |
 | `Assets/Scripts/Settings.cs`, `ParentUi.cs` | Saved parent settings, the hold-to-open button, the parent corner card and the break screen |
 | `Assets/Scripts/Editor/BigWheelsEditor.cs` | Project setup and a headless smoke test |

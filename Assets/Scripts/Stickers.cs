@@ -74,7 +74,7 @@ namespace BigWheels
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
+        public static Sprite IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
 
@@ -93,6 +93,15 @@ namespace BigWheels
             if (built) return; built = true;
             var ink = Palette.Ink;
 
+            // settings gear: a toothed disc with a hole
+            IconGear = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>
+            {
+                var shapes = new Shape[9];
+                shapes[0] = Shapes.Circle(0, 0, 19);
+                for (int i = 0; i < 8; i++) shapes[i + 1] = Shapes.RRect(-6, -29, 12, 14, 2.5f, i * 45f);
+                p.Fill(Shapes.Union(shapes), Palette.Hex("#6b7390"), 3.4f);
+                p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#fffaf0"), 3.4f);
+            });
             IconBook = Art.Make(-32, -28, 32, 28, Vector2.zero, p =>
             {
                 p.Fill(Shapes.RRect(-27, -23, 54, 46, 7), Palette.Truck[0], 4);

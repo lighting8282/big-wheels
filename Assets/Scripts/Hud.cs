@@ -21,6 +21,13 @@ namespace BigWheels
         readonly Image[] slotBg = new Image[Slots], slotCar = new Image[Slots], swatch = new Image[7];
         readonly Image[] truckBg = new Image[Trucks4], truckIcon = new Image[Trucks4], costumeBg = new Image[Costumes];
         readonly Image sndIcon;
+        readonly RectTransform gearRt, scoreRt;
+        readonly Text scoreVal, comboTxt, bestTxt;
+        class Pop { public Text t; public RectTransform rt; public float born = -99; }
+        readonly Pop[] pops = new Pop[14];
+        int nextPop, lastScore = -1, lastBest = -1, lastMult = -1;
+        static Font font;
+        static Font F => font != null ? font : (font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         readonly HorizontalLayoutGroup rowLayout, dockLayout;
         readonly VerticalLayoutGroup sideLayout;
         readonly GameObject play;
@@ -116,6 +123,32 @@ namespace BigWheels
             var tri = Rt("Triangle", playRt); Anchor(tri, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(8, 0), new Vector2(170, 170));
             Img(tri, Art.PlayTriangle, Color.white).raycastTarget = false;
             play = playRt.gameObject;
+
+            // settings gear for the parent, and the score panel, stacked under the sticker book on the left
+            gearRt = Rt("Gear", safe); Anchor(gearRt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -112), new Vector2(76, 76));
+            Img(gearRt, Art.UiRingFilled, Color.white);
+            gearRt.gameObject.AddComponent<Button>().onClick.AddListener(() => parentUi.Open());
+            var gicon = Rt("Icon", gearRt); Anchor(gicon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(48, 48));
+            Img(gicon, Art3.IconGear, Color.white).raycastTarget = false;
+
+            scoreRt = Rt("Score", safe); Anchor(scoreRt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -200), new Vector2(184, 112));
+            var sbg = Img(scoreRt, Art3.Card, new Color(.07f, .1f, .22f, .74f)); sbg.type = Image.Type.Sliced; sbg.raycastTarget = false;
+            var TL = new Vector2(0, 1); var TR = new Vector2(1, 1);
+            AddText(scoreRt, "SCORE", 15, FontStyle.Bold, TextAnchor.UpperLeft, new Color(1, 1, 1, .7f), TL, new Vector2(14, -9), new Vector2(100, 20));
+            scoreVal = AddText(scoreRt, "0", 40, FontStyle.Bold, TextAnchor.UpperLeft, Color.white, TL, new Vector2(14, -26), new Vector2(170, 50));
+            comboTxt = AddText(scoreRt, "", 28, FontStyle.Bold, TextAnchor.UpperRight, Palette.Hex("#ffb13b"), TR, new Vector2(-12, -6), new Vector2(80, 32));
+            bestTxt = AddText(scoreRt, "BEST 0", 15, FontStyle.Bold, TextAnchor.UpperLeft, new Color(1, 1, 1, .7f), TL, new Vector2(14, -84), new Vector2(166, 22));
+            scoreRt.gameObject.SetActive(false);
+
+            // floating "+points" popups
+            for (int i = 0; i < pops.Length; i++)
+            {
+                var pt = AddText(cgo.transform, "", 40, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white, new Vector2(.5f, .5f), Vector2.zero, new Vector2(320, 64));
+                var ol = pt.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(.05f, .05f, .15f, .9f); ol.effectDistance = new Vector2(2.5f, -2.5f);
+                pt.enabled = false;
+                pops[i] = new Pop { t = pt, rt = pt.rectTransform };
+            }
+
             sticker = new StickerUi(game, cgo.transform, safe);
             parentUi = new ParentUi(game, cgo.transform);
         }
@@ -137,6 +170,22 @@ namespace BigWheels
             parentUi.Tick(g.Clock);
             play.SetActive(!g.Started);
             if (!g.Started) playRt.localScale = Vector3.one * (1f + .08f * Mathf.Sin(g.Clock * 5f));
+
+            scoreRt.gameObject.SetActive(g.Started);
+            if (g.Score != lastScore) { lastScore = g.Score; scoreVal.text = g.Score.ToString("N0"); }
+            if (g.Best != lastBest) { lastBest = g.Best; bestTxt.text = "BEST " + g.Best.ToString("N0"); }
+            int mult = g.Mult; if (mult != lastMult) { lastMult = mult; comboTxt.text = mult > 1 ? "x" + mult : ""; comboTxt.color = g.Turbo ? Palette.Hex("#ff6a2a") : Palette.Hex("#ffb13b"); }
+            scoreVal.rectTransform.localScale = Vector3.one * (1f + .2f * g.ScorePulse);
+            foreach (var p in pops)
+            {
+                float age = g.Clock - p.born;
+                bool on = age >= 0 && age < 1.1f;
+                if (p.t.enabled != on) p.t.enabled = on;
+                if (!on) continue;
+                p.rt.anchoredPosition = new Vector2(0, 40f + 90f * age);
+                p.rt.localScale = Vector3.one * (1f + .4f * Mathf.Clamp01(1f - age * 5f));
+                var c = p.t.color; c.a = 1f - Mathf.Clamp01((age - .5f) / .6f); p.t.color = c;
+            }
 
             for (int i = 0; i < Slots; i++)
             {
@@ -161,6 +210,27 @@ namespace BigWheels
                 }
                 for (int i = 0; i < Trucks4; i++) truckIcon[i].sprite = Trucks.All[i].Body[lastColor];
             }
+        }
+
+        /// <summary>Floats "+points" up from a spot on the screen (fx, fy = 0..1 from the bottom left). A bigger multiplier makes it bigger and warmer.</summary>
+        public void Popup(string s, float fx, float fy, int mult)
+        {
+            var p = pops[nextPop++ % pops.Length];
+            p.born = Game.I != null ? Game.I.Clock : 0f;
+            int slot = nextPop % 4;                       // popups from one blast fan out instead of landing on each other
+            p.rt.anchorMin = p.rt.anchorMax = new Vector2(Mathf.Clamp(fx + (slot - 1.5f) * .07f, .1f, .9f), Mathf.Clamp(fy + slot * .055f, .12f, .86f));
+            p.t.text = s; p.t.fontSize = 26 + Mathf.Min(mult, 6) * 2;
+            p.t.color = mult >= 4 ? Palette.Hex("#ff8a2a") : mult >= 2 ? Palette.Hex("#ffd23f") : Color.white;
+        }
+
+        static Text AddText(Transform parent, string s, int size, FontStyle style, TextAnchor al, Color col, Vector2 anchor, Vector2 pos, Vector2 sz)
+        {
+            var rt = Rt("Text", parent);
+            rt.anchorMin = rt.anchorMax = anchor; rt.pivot = anchor; rt.anchoredPosition = pos; rt.sizeDelta = sz;
+            var t = rt.gameObject.AddComponent<Text>();
+            t.font = F; t.text = s; t.fontSize = size; t.fontStyle = style; t.alignment = al; t.color = col; t.raycastTarget = false;
+            t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Overflow;
+            return t;
         }
 
         public void Reward(int id) => sticker.Show(id);
@@ -189,6 +259,8 @@ namespace BigWheels
             sndIcon.rectTransform.sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
             sticker.Fit(cw, ch, sndS);
             parentUi.Fit(cw, ch);
+            gearRt.sizeDelta = new Vector2(sndS, sndS); gearRt.anchoredPosition = new Vector2(18, -(18 + sndS + 10));
+            ((RectTransform)gearRt.GetChild(0)).sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
 
             float top = 18 + sndS + 10;
             float bs = Mathf.Clamp((ch - top - 24 - 7 * 8 - 10) / 7f, 36f, 64f);
@@ -205,6 +277,12 @@ namespace BigWheels
             float ss = Mathf.Clamp((cw - 2 * (sndS + 30) - (Slots - 1) * 12) / Slots, 30f, 76f);
             rowLayout.spacing = 12; rowRt.sizeDelta = new Vector2(Slots * ss + (Slots - 1) * 12, ss); rowRt.anchoredPosition = new Vector2(0, -18);
             for (int i = 0; i < Slots; i++) { slotRt[i].sizeDelta = new Vector2(ss, ss); carRt[i].sizeDelta = new Vector2(ss * .78f, ss * .52f); }
+
+            // score panel: beside the gear in the top row when there is room before the counting slots, otherwise under the gear
+            float left = 18 + sndS + 10, avail = cw / 2 - rowRt.sizeDelta.x / 2 - left - 10;
+            float k = Mathf.Clamp(sndS / 84f, .7f, 1f);
+            if (avail >= 120f) { scoreRt.anchoredPosition = new Vector2(left, -18); scoreRt.localScale = Vector3.one * Mathf.Min(k, avail / 184f); }
+            else { scoreRt.anchoredPosition = new Vector2(18, -(18 + 2 * sndS + 20)); scoreRt.localScale = Vector3.one * k; }
         }
 
         static RectTransform Rt(string name, Transform parent)

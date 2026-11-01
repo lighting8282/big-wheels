@@ -45,7 +45,7 @@ namespace BigWheels
         readonly GameObject dim, breakGo;
         readonly RectTransform card, zRt, truckRt, moonRt;
         readonly Slider volume;
-        readonly Text engineLbl, worldLbl, breakLbl, resetLbl;
+        readonly Text engineLbl, worldLbl, breakLbl, resetLbl, screenLbl, sizeLbl;
         readonly RectTransform[] starRt = new RectTransform[7];
         float cw, ch, resetArm, resetDone;
         bool open, breakOn;
@@ -92,9 +92,14 @@ namespace BigWheels
                 int i = System.Array.IndexOf(BreakChoices, Settings.BreakMinutes); Settings.BreakMinutes = BreakChoices[(i + 1) % BreakChoices.Length];
                 game.ResetBreakTimer(); Refresh();
             }, out breakLbl);
+            if (DisplayOptions.Show)
+            {
+                MakeButton(card, "", Palette.Hex("#e0e7ff"), () => { DisplayOptions.ToggleFullscreen(); Refresh(); }, out screenLbl);
+                MakeButton(card, "", Palette.Hex("#e0e7ff"), () => { DisplayOptions.NextWindowSize(); Refresh(); }, out sizeLbl);
+            }
             MakeButton(card, "", Palette.Hex("#ffd6e8"), () =>
             {
-                if (resetArm > 0) { Stickers.ResetAll(); resetArm = 0; resetDone = 1.6f; Sfx.Play("splat", .6f); }
+                if (resetArm > 0) { Stickers.ResetAll(); game.ResetScores(); resetArm = 0; resetDone = 1.6f; Sfx.Play("splat", .6f); }
                 else resetArm = 3f;
                 Refresh();
             }, out resetLbl);
@@ -196,7 +201,12 @@ namespace BigWheels
             engineLbl.text = "Engine hum: " + (Settings.EngineOn ? "On" : "Off");
             worldLbl.text = "World: " + WorldNames[Settings.WorldLock + 1];
             breakLbl.text = "Break reminder: " + (Settings.BreakMinutes == 0 ? "Off" : Settings.BreakMinutes + " min");
-            resetLbl.text = resetDone > 0 ? "Sticker book reset" : resetArm > 0 ? "Tap again to reset the sticker book" : "Reset sticker book";
+            if (screenLbl != null)
+            {
+                screenLbl.text = "Screen: " + (Settings.FullScreen ? "Fullscreen" : "Windowed");
+                sizeLbl.text = Settings.FullScreen ? "Leave fullscreen" : "Enlarge window: " + DisplayOptions.SizeLabel;
+            }
+            resetLbl.text = resetDone > 0 ? "Stickers and score reset" : resetArm > 0 ? "Tap again: reset stickers + score" : "Reset stickers and score";
         }
 
         public void Tick(float time)

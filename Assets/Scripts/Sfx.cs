@@ -68,6 +68,13 @@ namespace BigWheels
                 new Voice(Wave.Noise, 3500, 1500, .05f, .3f, .12f), new Voice(Wave.Noise, 3500, 1500, .05f, .3f, .19f), new Voice(Wave.Noise, 3500, 1500, .05f, .25f, .27f));
             clips["crunch"] = Compose("crunch", new Voice(Wave.Noise, 1200, 200, .22f, .45f), new Voice(Wave.Noise, 2500, 300, .18f, .35f, .06f), new Voice(Wave.Square, 140, 60, .2f, .18f),
                 new Voice(Wave.Noise, 3000, 1200, .05f, .3f, .15f), new Voice(Wave.Noise, 3000, 1200, .05f, .3f, .22f));
+            clips["boom"] = Compose("boom", new Voice(Wave.Noise, 700, 60, .75f, .6f), new Voice(Wave.Sine, 75, 30, .65f, .7f), new Voice(Wave.Noise, 2600, 200, .3f, .35f, .02f),
+                new Voice(Wave.Noise, 1200, 150, .5f, .3f, .14f));
+            clips["shatter"] = Compose("shatter", new Voice(Wave.Noise, 6500, 3000, .28f, .32f), new Voice(Wave.Noise, 4500, 2000, .22f, .25f, .06f),
+                new Voice(Wave.Tri, 2600, 3400, .06f, .12f, .02f), new Voice(Wave.Tri, 3300, 2400, .06f, .1f, .09f), new Voice(Wave.Tri, 2100, 3000, .06f, .1f, .16f),
+                new Voice(Wave.Tri, 3600, 2800, .05f, .08f, .24f), new Voice(Wave.Tri, 2800, 3500, .05f, .08f, .31f));
+            clips["snap"] = Compose("snap", new Voice(Wave.Noise, 3200, 900, .07f, .4f), new Voice(Wave.Noise, 3200, 900, .07f, .35f, .06f), new Voice(Wave.Noise, 3200, 900, .07f, .3f, .13f),
+                new Voice(Wave.Noise, 3200, 900, .07f, .3f, .2f), new Voice(Wave.Square, 320, 140, .1f, .15f));
             clips["strike"] = Compose("strike", new Voice(Wave.Sine, 90, 50, .2f, .4f), new Voice(Wave.Tri, 1500, 900, .08f, .15f, .03f),
                 new Voice(Wave.Noise, 4000, 1500, .05f, .4f), new Voice(Wave.Noise, 4000, 1500, .05f, .4f, .05f), new Voice(Wave.Noise, 4000, 1500, .05f, .35f, .11f),
                 new Voice(Wave.Noise, 4000, 1500, .05f, .35f, .17f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .26f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .34f));

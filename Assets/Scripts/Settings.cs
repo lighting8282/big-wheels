@@ -5,9 +5,10 @@ namespace BigWheels
     /// <summary>Parent settings, saved in PlayerPrefs.</summary>
     public static class Settings
     {
-        const string VolKey = "bw_volume", EngineKey = "bw_engine", WorldKey = "bw_world", BreakKey = "bw_break";
+        const string VolKey = "bw_volume", EngineKey = "bw_engine", WorldKey = "bw_world", BreakKey = "bw_break", FullKey = "bw_full", WinKey = "bw_win", BestKey = "bw_best";
         static bool loaded;
         static float volume = 1f; static bool engine = true; static int world = -1, brk;
+        static bool full, bestDirty; static int win = 1, best;
 
         static void Load()
         {
@@ -16,6 +17,7 @@ namespace BigWheels
             {
                 volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolKey, 1f)); engine = PlayerPrefs.GetInt(EngineKey, 1) == 1;
                 world = Mathf.Clamp(PlayerPrefs.GetInt(WorldKey, -1), -1, 3); brk = Mathf.Max(0, PlayerPrefs.GetInt(BreakKey, 0));
+                full = PlayerPrefs.GetInt(FullKey, 0) == 1; win = Mathf.Clamp(PlayerPrefs.GetInt(WinKey, 1), 0, 4); best = Mathf.Max(0, PlayerPrefs.GetInt(BestKey, 0));
             }
             catch { }
         }
@@ -24,7 +26,8 @@ namespace BigWheels
             try
             {
                 PlayerPrefs.SetFloat(VolKey, volume); PlayerPrefs.SetInt(EngineKey, engine ? 1 : 0);
-                PlayerPrefs.SetInt(WorldKey, world); PlayerPrefs.SetInt(BreakKey, brk); PlayerPrefs.Save();
+                PlayerPrefs.SetInt(WorldKey, world); PlayerPrefs.SetInt(BreakKey, brk);
+                PlayerPrefs.SetInt(FullKey, full ? 1 : 0); PlayerPrefs.SetInt(WinKey, win); PlayerPrefs.SetInt(BestKey, best); PlayerPrefs.Save();
             }
             catch { }
         }
@@ -37,11 +40,20 @@ namespace BigWheels
         /// <summary>Minutes of play before the calm "time for a break" screen. 0 = off.</summary>
         public static int BreakMinutes { get { Load(); return brk; } set { Load(); brk = Mathf.Max(0, value); Save(); } }
 
+        /// <summary>Desktop only: true = borderless fullscreen, false = a window.</summary>
+        public static bool FullScreen { get { Load(); return full; } set { Load(); full = value; Save(); } }
+        /// <summary>Index into DisplayOptions.Sizes for the windowed size.</summary>
+        public static int WindowSize { get { Load(); return win; } set { Load(); win = Mathf.Clamp(value, 0, 4); Save(); } }
+        /// <summary>Best score over all runs. Kept in memory while playing and written out by FlushBest.</summary>
+        public static int Best { get { Load(); return best; } set { Load(); value = Mathf.Max(0, value); if (value != best) { best = value; bestDirty = true; } } }
+        public static void FlushBest() { if (bestDirty) { bestDirty = false; Save(); } }
+
         /// <summary>Test hooks.</summary>
         public static void ResetAll()
         {
-            try { PlayerPrefs.DeleteKey(VolKey); PlayerPrefs.DeleteKey(EngineKey); PlayerPrefs.DeleteKey(WorldKey); PlayerPrefs.DeleteKey(BreakKey); } catch { }
-            loaded = false;
+            try { PlayerPrefs.DeleteKey(VolKey); PlayerPrefs.DeleteKey(EngineKey); PlayerPrefs.DeleteKey(WorldKey); PlayerPrefs.DeleteKey(BreakKey);
+                      PlayerPrefs.DeleteKey(FullKey); PlayerPrefs.DeleteKey(WinKey); PlayerPrefs.DeleteKey(BestKey); } catch { }
+            loaded = false; bestDirty = false;
         }
         public static void ForgetCache() { loaded = false; }
     }

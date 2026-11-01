@@ -19,6 +19,10 @@ namespace BigWheels.EditorTools
                 AssetDatabase.CreateAsset(new Material(shader), MatPath);
             }
             PlayerSettings.productName = "Big Wheels";
+            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;      // opens in a window the player can drag bigger, maximise or take fullscreen with F11
+            PlayerSettings.resizableWindow = true;
+            PlayerSettings.defaultIsNativeResolution = false;
+            PlayerSettings.defaultScreenWidth = 1280; PlayerSettings.defaultScreenHeight = 720;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
@@ -132,6 +136,18 @@ namespace BigWheels.EditorTools
             g.DebugSpawn('n', 330);
             Step(g, 64); Shot(cam, rt, P("35_pins"));
             Step(g, 200);
+            g.DebugSpawn('g', 330);
+            Step(g, 64); Shot(cam, rt, P("38_glass"));
+            Step(g, 200);
+            g.DebugSpawn('f', 330);
+            Step(g, 64); Shot(cam, rt, P("39_fence"));
+            Step(g, 200);
+            // explosive barrels with a crate stack and a wall close by: the blast sets them all off
+            g.DebugSpawn('x', 420); g.DebugSpawn('k', 560); g.DebugSpawn('m', 700);
+            Step(g, 76); Shot(cam, rt, P("3a_barrel_blast"));
+            Step(g, 20); Shot(cam, rt, P("3b_barrel_blast_after"));
+            Debug.Log($"[BigWheels] {tag}: score after the blast = {g.Score} best={g.Best} combo={g.Combo} mult={g.Mult}");
+            Step(g, 200);
             g.DebugTurbo(); g.DebugSpawn('m', 420); g.DebugSpawn('k', 800);
             Step(g, 50); Shot(cam, rt, P("36_turbo"));
             Step(g, 40); Shot(cam, rt, P("37_turbo_smash"));
@@ -142,6 +158,8 @@ namespace BigWheels.EditorTools
             int s = 0;
 
             // parent corner, break screen, and a locked world
+            Settings.FlushBest(); Settings.ForgetCache();
+            Debug.Log($"[BigWheels] {tag}: final score={g.Score} best after save and reload={Settings.Best} (must be >= score)");
             g.OpenParent(); Step(g, 8);
             Shot(cam, rt, P("60_parent"));
             g.CloseParent(); Step(g, 5);

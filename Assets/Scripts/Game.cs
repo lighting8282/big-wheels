@@ -19,7 +19,7 @@ namespace BigWheels
         }
 
         // ---------- tuning ----------
-        const float Gravity = 1900f, Speed = 250f, Tau = Mathf.PI * 2f;
+        const float Gravity = 1900f, Speed = 285f, Tau = Mathf.PI * 2f;
         public const int SlotCount = 3;
         const float WorldSeconds = 75f;
         static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho", "hoot", "yip", "huff" };
@@ -137,8 +137,9 @@ namespace BigWheels
             Application.targetFrameRate = 60; Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Art.Build(); Art2.Build(); Art3.Build(); SmashArt.Build(); Trucks.Build();
             Sfx.Init(gameObject);
+            DisplayOptions.Apply();
 
-            mat = Resources.Load<Material>("SpriteUnlit");
+            mat =Resources.Load<Material>("SpriteUnlit");
             if (mat == null) mat = new Material(Shader.Find("Sprites/Default"));
 
             cam = Camera.main;
@@ -262,6 +263,7 @@ namespace BigWheels
         {
             var kb = Keyboard.current;
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.upArrowKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame)) Act();
+            if (kb != null && kb.f11Key.wasPressedThisFrame) DisplayOptions.ToggleFullscreen();
             Tick(Mathf.Min(.05f, UnityEngine.Time.unscaledDeltaTime));
         }
 
@@ -415,7 +417,7 @@ namespace BigWheels
                 Sfx.Play("thump");
                 Stars(cx, BASE - 4, 8, new[] { Palette.Hex("#e9c9a0"), Palette.Hex("#d4aa7a"), Palette.Hex("#c58f5c") }, 200);
             }
-            if (truck.flipped) { truck.flipped = false; Confetti(cx, BASE - 140, 26, 360); Sfx.Play("sparkle"); Award(15); }
+            if (truck.flipped) { truck.flipped = false; Confetti(cx, BASE - 140, 26, 360); Sfx.Play("sparkle"); Award(15); AddScore(100, cx, BASE - 230); }
         }
 
         void Launch(float vh, bool autoFlip)
@@ -427,7 +429,11 @@ namespace BigWheels
         void CrushCar(Obj c)
         {
             c.s = 1; c.sq = 0; c.diz = 1.6f;
-            Sfx.Play("squash"); AddShake(3f); FeedCharge();
+            Sfx.Play("squash"); AddShake(3f); FeedCharge(); AddScore(50, c.x, BASE - 90);
+            {
+                Color cc = Palette.Truck[c.ci];            // bits of the car fly off
+                for (int i = 0; i < 9; i++) Debris(PBrick, c.x + Random.Range(-50f, 50f), BASE - Random.Range(10f, 50f), Speed * spdMul, .9f, Random.Range(.4f, .75f), cc);
+            }
             Stars(c.x, BASE - 30, 12, new[] { Palette.Sun, Palette.Hex("#ff9a1f"), Color.white }, 340);
             truck.bobV += 260;
             if (!truck.air && GroundH(worldX + TX + 40) == 0) { truck.air = true; truck.vh = 300; }
@@ -440,7 +446,7 @@ namespace BigWheels
             Sfx.Say(new[] { "one", "two", "three" }[n], true);
             if (Slots >= SlotCount)
             {
-                Celeb = 2.6f; Sfx.Play("fanfare"); Award(17);
+                Celeb = 2.6f; Sfx.Play("fanfare"); Award(17); AddScore(300, worldX + TX, BASE - 240);
                 Confetti(worldX + TX, BASE - 200, 40, 500);
                 Sfx.Say("yay", true);
             }
@@ -450,7 +456,7 @@ namespace BigWheels
         {
             j.s = 1; j.sq = 0;
             Color col = Palette.Truck[Art2.JellyPalette[j.ci]];
-            Sfx.Play("splat"); Award(18);
+            Sfx.Play("splat"); Award(18); AddScore(30, j.x, BASE - 90);
             truck.bobV += 200;
             for (int i = 0; i < 16; i++)
                 AddPart(0, j.x + Random.Range(-50f, 50f), BASE - 40, Random.Range(-200f, 200f), Random.Range(-560f, -180f), 1500, Random.Range(5f, 11f), 0, 0, Random.Range(.5f, .9f), col);
@@ -463,9 +469,15 @@ namespace BigWheels
         void Spawn()
         {
             float r = Random.value;
-            char type = r < .22f ? 'c' : r < .34f ? 'b' : r < .42f ? 'r' : r < .48f ? 'p' : r < .52f ? 'w' : r < .59f ? 't' : r < .66f ? 'j' : r < .74f ? 's' : r < .83f ? 'k' : r < .92f ? 'm' : 'n';
+            char type = r < .18f ? 'c' : r < .27f ? 'b' : r < .34f ? 'r' : r < .39f ? 'p' : r < .42f ? 'w' : r < .48f ? 't' : r < .54f ? 'j' : r < .60f ? 's'
+                : r < .69f ? 'k' : r < .77f ? 'm' : r < .84f ? 'n' : r < .91f ? 'x' : r < .96f ? 'g' : 'f';
             if (type == 'w' && truck.mud.Count < 4) type = 'c';
             float w = SpawnAt(type, spawnX);
+            if (IsSmashable(type) && Random.value < .4f)          // props often come in pairs: more to smash in one go
+            {
+                spawnX += w + 50f;
+                w = SpawnAt("kmnxgf"[Random.Range(0, 6)], spawnX);
+            }
             spawnX += w + Random.Range(330f, 560f);
         }
 
@@ -494,6 +506,9 @@ namespace BigWheels
                 case 'k': objs.Add(NewObj('k', x + 70, 140, 0)); w = 140; break;
                 case 'm': objs.Add(NewObj('m', x + 65, 130, 0)); w = 130; break;
                 case 'n': objs.Add(NewObj('n', x + 85, 170, 0)); w = 170; break;
+                case 'x': objs.Add(NewObj('x', x + 70, 140, 0)); w = 140; break;
+                case 'g': objs.Add(NewObj('g', x + 82, 164, 0)); w = 164; break;
+                case 'f': objs.Add(NewObj('f', x + 82, 164, 0)); w = 164; break;
                 default: objs.Add(NewObj('s', x + 160, 320, 0)); w = 320; break;
             }
             return w;
@@ -514,7 +529,7 @@ namespace BigWheels
                 case 'p': o.sr = MakeSR("Puddle", Art.Puddle, -40); break;
                 case 't': o.sr = MakeSR("Trampoline", Art2.Trampoline, -22); break;
                 case 'j': o.sr = MakeSR("Jelly", Art2.Jelly[ci], -21); break;
-                case 'k': case 'm': case 'n': o.sr = MakeSR("Smashable", SmashSprite(type), -18); break;
+                case 'k': case 'm': case 'n': case 'x': case 'g': case 'f': o.sr = MakeSR("Smashable", SmashSprite(type), -18); break;
                 case 's':
                     o.sr = MakeSR("Stream", Art2.StreamWater, -42);
                     o.extra = new SpriteRenderer[2];
@@ -557,7 +572,7 @@ namespace BigWheels
                 playSeconds += dt;
                 if (playSeconds >= Settings.BreakMinutes * 60f) { playSeconds = 0; hud.ShowBreak(); }
             }
-            SmashStep(dt);
+            SmashStep(dt); StepScore(dt);
             t += dt; worldX += Speed * spdMul * dt; truck.wheel += Speed * spdMul * dt / Def.WheelR; sirenCd -= dt;
             float cx = worldX + TX;
             while (spawnX < worldX + Wl + 300) Spawn();
@@ -645,7 +660,7 @@ namespace BigWheels
                 var p = parts[i]; p.life -= dt;
                 if (p.life <= 0) { parts.RemoveAt(i); continue; }
                 p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; p.rot += p.vr * dt;
-                if (p.kind >= PCrate && p.kind <= PPin) DebrisFloor(p, dt);
+                if ((p.kind >= PCrate && p.kind <= PPin) || p.kind == PShard) DebrisFloor(p, dt);
             }
             Sfx.SetEngine(46 + (truck.air ? 22 : 0) + (turboT > 0 ? 18 : 0) + 5 * Mathf.Sin(t * 14));
         }
@@ -691,7 +706,7 @@ namespace BigWheels
             switch (o.t)
             {
                 case 'c':
-                    if (o.s == 0) { if (Mathf.Abs(cx - o.x) < o.w / 2 + 24 && truck.h < 95) CrushCar(o); }
+                    if (o.s == 0) { if (Mathf.Abs(cx - o.x) < o.w / 2 + 24 + (turboT > 0 ? 100f : 0f) && truck.h < (turboT > 0 ? 190f : 95f)) CrushCar(o); }
                     else
                     {
                         if (o.sq < 1) o.sq = Mathf.Min(1, o.sq + dt / .14f);
@@ -712,7 +727,7 @@ namespace BigWheels
                             Sfx.Pop(popCombo++);
                             Confetti(bx, by, 14, 220); Stars(bx, by, 6, new[] { Palette.Truck[o.ci], Color.white }, 220);
                             Sfx.Say(Palette.Names[o.ci], false);
-                            Award(16);
+                            Award(16); AddScore(10, bx, by);
                         }
                     }
                     break;
@@ -766,7 +781,7 @@ namespace BigWheels
                     if (o.s == 0) { if (Mathf.Abs(cx - o.x) < o.w / 2 + 20 && truck.h < 70) HitJelly(o, cx); }
                     else if (o.sq < 1) o.sq = Mathf.Min(1, o.sq + dt / .2f);
                     break;
-                case 'k': case 'm': case 'n':
+                case 'k': case 'm': case 'n': case 'x': case 'g': case 'f':
                     StepSmash(o, cx);
                     break;
                 case 'w':
@@ -987,7 +1002,7 @@ namespace BigWheels
                     o.sr.transform.position = U(sx, BASE - o.hh + Mathf.Sin(t * 2 + o.ph) * 8);
                     o.sr.transform.rotation = Quaternion.Euler(0, 0, -Mathf.Sin(t * 1.5f + o.ph) * .06f * Mathf.Rad2Deg);
                     break;
-                case 'r': case 'p': case 'k': case 'm': case 'n':
+                case 'r': case 'p': case 'k': case 'm': case 'n': case 'x': case 'g': case 'f':
                     o.sr.transform.position = U(sx, BASE);
                     break;
                 case 't':
@@ -1074,7 +1089,7 @@ namespace BigWheels
         void RenderParts()
         {
             pDot.Begin(); pStar.Begin(); pSq.Begin(); pBubble.Begin();
-            pCrate.Begin(); pPlank.Begin(); pBrick.Begin(); pPin.Begin(); pFlame.Begin();
+            pCrate.Begin(); pPlank.Begin(); pBrick.Begin(); pPin.Begin(); pFlame.Begin(); pShard.Begin();
             foreach (var p in parts)
             {
                 float sx = p.x - worldX, a = Mathf.Clamp01(p.life / p.max * 1.6f);
@@ -1087,7 +1102,8 @@ namespace BigWheels
                     case 2: r = pSq.Next(); r.transform.localScale = new Vector3(p.r * 2 / 100f, p.r / 100f, 1); break;
                     case 3: r = pBubble.Next(); r.transform.localScale = Vector3.one * (p.r * 2 / 100f); c = Color.white; break;
                     case PCrate: r = pCrate.Next(); r.transform.localScale = Vector3.one * p.r; c = Color.white; a = Mathf.Clamp01(p.life / p.max * 2f); break;
-                    case PPlank: r = pPlank.Next(); r.transform.localScale = Vector3.one * p.r; c = Color.white; a = Mathf.Clamp01(p.life / p.max * 2f); break;
+                    case PPlank: r = pPlank.Next(); r.transform.localScale = Vector3.one * p.r; a = Mathf.Clamp01(p.life / p.max * 2f); break;
+                    case PShard: r = pShard.Next(); r.transform.localScale = Vector3.one * p.r; a = Mathf.Clamp01(p.life / p.max * 2f) * .9f; break;
                     case PBrick: r = pBrick.Next(); r.transform.localScale = Vector3.one * p.r; a = Mathf.Clamp01(p.life / p.max * 2f); break;
                     case PPin: r = pPin.Next(); r.transform.localScale = Vector3.one * p.r; c = Color.white; a = Mathf.Clamp01(p.life / p.max * 2f); break;
                     case PFlame:
@@ -1113,7 +1129,7 @@ namespace BigWheels
                     r.transform.localScale = Vector3.one * (fr * 2 / 100f); r.color = new Color(1, 1, 1, .9f * snowFade);
                 }
             pDot.End(); pStar.End(); pSq.End(); pBubble.End();
-            pCrate.End(); pPlank.End(); pBrick.End(); pPin.End(); pFlame.End();
+            pCrate.End(); pPlank.End(); pBrick.End(); pPin.End(); pFlame.End(); pShard.End();
         }
     }
 }
