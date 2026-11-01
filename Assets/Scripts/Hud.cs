@@ -23,9 +23,9 @@ namespace BigWheels
         readonly Image[] slotBg = new Image[Slots], slotCar = new Image[Slots], swatch = new Image[7];
         readonly Image[] truckBg = new Image[Trucks4], truckIcon = new Image[Trucks4], costumeBg = new Image[Costumes];
         readonly Image sndIcon;
-        readonly RectTransform gearRt, scoreRt, viewRt, pauseRt, custRt, gasRt, brakeRt;
+        readonly RectTransform gearRt, scoreRt, viewRt, pauseRt, custRt, gasRt, brakeRt, jumpRt;
         readonly Image gasBg, brakeBg;
-        PauseUi pauseUi; CustomizeUi custUi; bool cabHud;
+        PauseUi pauseUi; CustomizeUi custUi; MenuUi menuUi; bool cabHud;
         readonly Text scoreVal, comboTxt, bestTxt;
         class Pop { public Text t; public RectTransform rt; public float born = -99; }
         readonly Pop[] pops = new Pop[14];
@@ -159,6 +159,12 @@ namespace BigWheels
             gasRt.gameObject.AddComponent<PedalButton>().OnState = d => game.SetPedal(true, d);
             var gicon2 = Rt("Icon", gasRt); Anchor(gicon2, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(54, 54));
             Img(gicon2, Art3.IconGas, Color.white).raycastTarget = false;
+            jumpRt = Rt("Jump", safe); Anchor(jumpRt, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-18, 120), new Vector2(84, 84));
+            Img(jumpRt, Art.UiSteel, Color.white);
+            jumpRt.gameObject.AddComponent<Button>().onClick.AddListener(game.CockpitJump);
+            var jicon = Rt("Icon", jumpRt); Anchor(jicon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(54, 54));
+            Img(jicon, Art3.IconJump, Color.white).raycastTarget = false;
+            jumpRt.gameObject.SetActive(false);
             brakeRt = Rt("Brake", safe); Anchor(brakeRt, new Vector2(0, 0), new Vector2(0, 0), new Vector2(18, 18), new Vector2(84, 84));
             brakeBg = Img(brakeRt, Art.UiSteel, Color.white);
             brakeRt.gameObject.AddComponent<PedalButton>().OnState = d => game.SetPedal(false, d);
@@ -183,6 +189,7 @@ namespace BigWheels
                 pops[i] = new Pop { t = pt, rt = pt.rectTransform };
             }
 
+            menuUi = new MenuUi(game, cgo.transform, () => parentUi.Open(), () => custUi.Open(), game.OpenBook);
             pauseUi = new PauseUi(game, cgo.transform, () => parentUi.Open(), () => custUi.Open());
             custUi = new CustomizeUi(game, cgo.transform);
             sticker = new StickerUi(game, cgo.transform, safe);
@@ -204,7 +211,9 @@ namespace BigWheels
             if (needLayout) FitLayout();
             sticker.Refresh(g.Clock);
             parentUi.Tick(g.Clock);
-            play.SetActive(!g.Started);
+            play.SetActive(false);
+            menuUi.Refresh(!g.Started);
+            if (safe.gameObject.activeSelf != g.Started) safe.gameObject.SetActive(g.Started);      // the menu stands alone: no buttons behind it
             pauseRt.gameObject.SetActive(g.Started); gasRt.gameObject.SetActive(g.Started); brakeRt.gameObject.SetActive(g.Started);
             gasBg.sprite = g.PedalGas ? Art.UiSteelSel : Art.UiSteel; brakeBg.sprite = g.PedalBrake ? Art.UiSteelSel : Art.UiSteel;
             if (!g.Started) playRt.localScale = Vector3.one * (1f + .08f * Mathf.Sin(g.Clock * 5f));
@@ -272,7 +281,7 @@ namespace BigWheels
         }
 
         /// <summary>In the cab the paint, truck and costume buttons are hidden: they would sit on top of the dashboard.</summary>
-        public void SetCockpit(bool on) { dockRt.gameObject.SetActive(!on); sideRt.gameObject.SetActive(!on); custRt.gameObject.SetActive(on); cabHud = on; needLayout = true; }
+        public void SetCockpit(bool on) { dockRt.gameObject.SetActive(!on); sideRt.gameObject.SetActive(!on); custRt.gameObject.SetActive(on); jumpRt.gameObject.SetActive(on); cabHud = on; needLayout = true; }
 
         public void Reward(int id) => sticker.Show(id);
         public void OpenParent() => parentUi.Open();
@@ -317,6 +326,9 @@ namespace BigWheels
             custRt.sizeDelta = new Vector2(sndS, sndS); custRt.anchoredPosition = new Vector2(18, -(18 + 3 * (sndS + 10)));
             ((RectTransform)custRt.GetChild(0)).sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
             float pedS = Mathf.Min(sndS * 1.1f, 92f);
+            jumpRt.sizeDelta = new Vector2(pedS, pedS); jumpRt.anchoredPosition = new Vector2(-18f, 18f + pedS + 12f);
+            ((RectTransform)jumpRt.GetChild(0)).sizeDelta = new Vector2(pedS * .64f, pedS * .64f);
+            menuUi.Fit(cw, ch);
             gasRt.sizeDelta = new Vector2(pedS, pedS); gasRt.anchoredPosition = new Vector2(cabHud ? -18f : -(18 + 64 + 14), 18);
             brakeRt.sizeDelta = new Vector2(pedS, pedS); brakeRt.anchoredPosition = new Vector2(18, 18);
             ((RectTransform)gasRt.GetChild(0)).sizeDelta = new Vector2(pedS * .64f, pedS * .64f); ((RectTransform)brakeRt.GetChild(0)).sizeDelta = new Vector2(pedS * .64f, pedS * .64f);

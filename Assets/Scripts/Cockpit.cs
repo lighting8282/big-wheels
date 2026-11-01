@@ -87,6 +87,16 @@ namespace BigWheels
             cPtrDown = true; cPtrX = px.x;
         }
 
+        /// <summary>Hop the truck: a short jump that clears low props and cars, with a thump on landing.</summary>
+        public void CockpitJump()
+        {
+            if (!Cockpit || !Started || paused || cair > 0f || cairV > 0f) return;
+            cairV = 8.6f; cair = .02f; cairT = 0f; cBobV += 140f;
+            Sfx.Play("boing"); Horn(); AddShake(2f);
+        }
+        public void DebugJump() { CockpitJump(); }
+        public bool Airborne => cair > 0f || cairV > 0f;
+
         void CockpitNitro()
         {
             if (!nitroReady || turboT > 0) return;
@@ -154,7 +164,7 @@ namespace BigWheels
                 if (kb.rightArrowKey.isPressed || kb.dKey.isPressed) steer += 1f;
                 if (kb.upArrowKey.isPressed || kb.wKey.isPressed) gas += 1f;
                 if (kb.downArrowKey.isPressed || kb.sKey.isPressed) gas -= 1f;
-                if (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame) nitro = true;
+                if (kb.enterKey.wasPressedThisFrame || kb.nKey.wasPressedThisFrame) nitro = true;
                 if (kb.zKey.wasPressedThisFrame || kb.cKey.wasPressedThisFrame) wipe = true;
             }
             var gp = Gamepad.current;
@@ -162,7 +172,7 @@ namespace BigWheels
             {
                 steer += gp.leftStick.x.ReadValue();
                 gas += gp.rightTrigger.ReadValue() - gp.leftTrigger.ReadValue();
-                if (gp.buttonSouth.wasPressedThisFrame) nitro = true;
+                if (gp.buttonEast.wasPressedThisFrame || gp.rightShoulder.wasPressedThisFrame) nitro = true;
                 if (gp.buttonWest.wasPressedThisFrame) wipe = true;
             }
             if (PedalGas) gas += 1f;
@@ -266,7 +276,7 @@ namespace BigWheels
                 foreach (var c in splats) if (!c.on) { s = c; break; }
                 if (s == null) s = splats[Random.Range(0, splats.Length)];
                 s.on = true; s.pos = new Vector2(Random.Range(-170f, 170f), Random.Range(-290f, -105f));
-                s.size = Random.Range(.6f, 1.4f) * sizeMul; s.alpha = 1f; s.sr.color = col; s.sr.transform.localRotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
+                s.size = Random.Range(.45f, 1f) * sizeMul; s.alpha = 1f; s.sr.color = col; s.sr.transform.localRotation = Quaternion.Euler(0, 0, Random.Range(0f, 360f));
             }
         }
 
@@ -292,8 +302,8 @@ namespace BigWheels
                 case 'j': case 'p':
                     if (dx > o.hw + .9f || cair > .6f) return;
                     o.done = true; o.dead = o.t == 'j';
-                    if (o.t == 'j') { var c = Palette.Truck[Art2.JellyPalette[o.ci]]; AddSplat(c, 4, 1.3f); Sfx.Play("splat"); AddScorePt(30, .5f, .5f); Award(18); }
-                    else { AddSplat(Palette.Mud, 3, 1.1f); Sfx.Play("splash"); Award(22); }
+                    if (o.t == 'j') { var c = Palette.Truck[Art2.JellyPalette[o.ci]]; AddSplat(c, 3, 1f); Sfx.Play("splat"); AddScorePt(30, .5f, .5f); Award(18); }
+                    else { AddSplat(Palette.Mud, 2, .9f); Sfx.Play("splash"); Award(22); }
                     cBobV += 40f; break;
             }
         }
@@ -373,10 +383,11 @@ namespace BigWheels
                 playSeconds += dt;
                 if (playSeconds >= Settings.BreakMinutes * 60f) { playSeconds = 0; hud.ShowBreak(); }
             }
+            var kbp = Keyboard.current; var gpp = Gamepad.current;
             ReadInput(out float steerIn, out float gas, out bool nitro, out bool wipe);
             if (!Started) { steerIn = Mathf.Sin(t * .6f) * .5f; gas = 0; nitro = false; wipe = false; }
             if (nitro) CockpitNitro();
-            var kbp = Keyboard.current; var gpp = Gamepad.current;
+            if ((kbp != null && kbp.spaceKey.wasPressedThisFrame) || (gpp != null && gpp.buttonSouth.wasPressedThisFrame)) CockpitJump();
             if ((kbp != null && kbp.pKey.wasPressedThisFrame) || (gpp != null && gpp.buttonNorth.wasPressedThisFrame)) SetColor((ColorIndex + 1) % Palette.Truck.Length);
             if (wipe) cWipeReq = true;
 
@@ -456,7 +467,7 @@ namespace BigWheels
                 if (p.grav > 0f && !p.rest && rz < 1.7f && rz > .2f && Mathf.Abs(p.wx - cpx) < 2.2f && p.wh > .5f && p.wh < 3.4f)
                 {                                       // something hits the windshield
                     cDamage = Mathf.Min(1.2f, cDamage + .05f); AddShake(2.5f); cBobV += 30f;
-                    if (Random.value < .25f) AddSplat(p.col.a > .5f && p.sp == Art.Dot ? p.col : Palette.Mud, 1, .8f);
+                    if (Random.value < .12f) AddSplat(p.col.a > .5f && p.sp == Art.Dot ? p.col : Palette.Mud, 1, .8f);
                     cps.RemoveAt(i); continue;
                 }
                 if (rz < .3f) cps.RemoveAt(i);
@@ -465,9 +476,9 @@ namespace BigWheels
 
             // windshield: mud, wipers
             int dirty = 0; foreach (var s in splats) if (s.on) dirty++;
-            if (dirty >= 4 && !cWipeActive) cWipeReq = true;
+            if (dirty >= 2 && !cWipeActive) cWipeReq = true;
             if (cWipeReq && !cWipeActive) { cWipeActive = true; cWipePh = 0f; cWipeReq = false; Sfx.Play("wipe", .5f); }
-            if (cWipeActive) { cWipePh += dt / .95f; if (cWipePh >= 1f) { cWipeActive = false; cWipePh = 0f; } }
+            if (cWipeActive) { cWipePh += dt / .7f; if (cWipePh >= 1f) { cWipeActive = false; cWipePh = 0f; } }
 
             // the dice, mirror and mic swing about with every turn and bump
             float latAcc = (cpv - lastPv) / Mathf.Max(.001f, dt); lastPv = cpv;
@@ -743,20 +754,12 @@ namespace BigWheels
             foreach (var sp in splats)
             {
                 if (!sp.on) continue;
-                if (cWipeActive)
-                {
-                    for (int w = 0; w < 2; w++)
-                    {
-                        Vector2 piv = new Vector2(w == 0 ? -150f : 150f, -62f), d = sp.pos - piv;
-                        float ang = Mathf.Atan2(-d.y, w == 0 ? d.x : -d.x) * Mathf.Rad2Deg;
-                        if (d.magnitude < 150f && Mathf.Abs(ang - wa) < 16f) sp.alpha -= dt * 6f;
-                    }
-                }
-                sp.alpha -= dt * .05f;
+                if (cWipeActive) sp.alpha -= dt * 4f;                  // the wipers clear the whole glass in one sweep
+                sp.alpha -= dt * .55f;                                 // and dirt dries and falls off on its own within a couple of seconds
                 if (sp.alpha <= 0f) { sp.on = false; sp.sr.enabled = false; continue; }
                 sp.sr.enabled = true; sp.sr.transform.localPosition = new Vector3(sp.pos.x / 100f, -sp.pos.y / 100f, 0);
-                sp.sr.transform.localScale = Vector3.one * sp.size * 1.6f;
-                var c = sp.sr.color; c.a = Mathf.Clamp01(sp.alpha) * .85f; sp.sr.color = c;
+                sp.sr.transform.localScale = Vector3.one * sp.size * 1.4f;
+                var c = sp.sr.color; c.a = Mathf.Clamp01(sp.alpha) * .7f; sp.sr.color = c;
             }
         }
     }

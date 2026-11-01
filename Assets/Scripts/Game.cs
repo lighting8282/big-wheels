@@ -182,7 +182,6 @@ namespace BigWheels
             ComputeLayout();
             Render();
             CockpitInit();
-            if (Settings.CockpitDefault) SetCockpit(true);
         }
 
         void BuildScenery()
@@ -307,7 +306,7 @@ namespace BigWheels
         public void Tap(Vector2 px)
         {
             if (paused) return;
-            if (!Started) { StartGame(); return; }
+            if (!Started) return;
             float lx = px.x / S, ly = (H - px.y) / S;
             if (Cockpit) { CockpitTap(lx, ly, px); return; }
             if ((new Vector2(lx, ly) - SunPos).sqrMagnitude < 75f * 75f) { SunTap(); return; }
@@ -327,7 +326,7 @@ namespace BigWheels
         public void Act()
         {
             if (paused) return;
-            if (!Started) { StartGame(); return; }
+            if (!Started) return;
             if (Cockpit) return;
             if (!truck.air)
             {
@@ -362,6 +361,27 @@ namespace BigWheels
         }
 
         void StartDig() { if (digT <= 0) { digT = .7f; digDumped = false; } }
+
+        /// <summary>Main menu: start playing in the chosen view with a fresh score.</summary>
+        public void BeginPlay(bool cockpit)
+        {
+            if (Started) return;
+            SetCockpit(cockpit); Settings.CockpitDefault = cockpit;
+            Score = 0; combo = 0; comboClock = 0; charge = 0; turboT = 0; nitroReady = false; ReleasePedals();
+            if (cockpit) ClearCockpit();
+            StartGame();
+        }
+
+        /// <summary>Pause screen: stop playing and go back to the main menu.</summary>
+        public void ReturnToMenu()
+        {
+            if (!Started) return;
+            Settings.FlushBest();
+            hud.CloseCustomize(); hud.ClosePause();
+            Started = false; ReleasePedals(); turboT = 0; nitroReady = false; charge = 0;
+            Sfx.SetEngineEnabled(false);
+            if (Cockpit) SetCockpit(false);
+        }
 
         public void StartGame()
         {

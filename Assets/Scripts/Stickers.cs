@@ -74,7 +74,7 @@ namespace BigWheels
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconPause, IconGas, IconBrake, IconPaint, IconWheel, IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
+        public static Sprite IconJump, IconPause, IconGas, IconBrake, IconPaint, IconWheel, IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
 
@@ -101,6 +101,11 @@ namespace BigWheels
                 for (int i = 0; i < 8; i++) shapes[i + 1] = Shapes.RRect(-6, -29, 12, 14, 2.5f, i * 45f);
                 p.Fill(Shapes.Union(shapes), Palette.Hex("#aab3c8"), 3.4f);
                 p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#2b303a"), 3.4f);
+            });
+            IconJump = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>                       // jump: an up arrow over a spring
+            {
+                p.Fill(Shapes.Poly(0, -26, 20, -4, 8, -4, 8, 8, -8, 8, -8, -4, -20, -4), Palette.Hex("#ffb02e"), 3);
+                for (int k = 0; k < 3; k++) p.Fill(Shapes.Capsule(-14, 14 + k * 6, 14, 14 + k * 6, 1.8f), Palette.Hex("#e9edf5"));
             });
             IconPause = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>
             {

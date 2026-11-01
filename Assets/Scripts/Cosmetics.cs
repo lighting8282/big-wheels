@@ -35,7 +35,7 @@ namespace BigWheels
         // ---------- pause ----------
         public void OpenPause() { if (Started) hud.OpenPause(); }
         public void ClosePause() => hud.ClosePause();
-        public void OpenCustomize() { if (Started) hud.OpenCustomize(); }
+        public void OpenCustomize() => hud.OpenCustomize();
         public void CloseCustomize() => hud.CloseCustomize();
 
         /// <summary>Esc or the pad's Start button: close whatever is open, otherwise pause.</summary>

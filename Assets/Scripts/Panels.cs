@@ -60,52 +60,6 @@ namespace BigWheels
         public void OnPointerExit(PointerEventData e) { OnState?.Invoke(false); }
     }
 
-    /// <summary>The pause screen: resume, customise (in the cab), settings, and a switch between the two views.</summary>
-    public class PauseUi
-    {
-        readonly Game game; readonly GameObject root, customBtn; readonly Text viewLbl; readonly RectTransform card, settingsRt, viewRt;
-        bool open;
-        public bool IsOpen => open;
-
-        public PauseUi(Game game, Transform canvasRoot, System.Action settings, System.Action customise)
-        {
-            this.game = game;
-            var dim = Kit.Dim(canvasRoot, "PauseScreen", out var cd, 400, 450);
-            root = dim.gameObject; card = cd;
-            var title = Kit.Label(card, "PAUSED", 46, FontStyle.Bold, TextAnchor.MiddleCenter, Color.white);
-            title.rectTransform.anchorMin = new Vector2(0, 1); title.rectTransform.anchorMax = new Vector2(1, 1); title.rectTransform.pivot = new Vector2(.5f, 1);
-            title.rectTransform.offsetMin = new Vector2(0, -96); title.rectTransform.offsetMax = new Vector2(0, -22);
-            Text l;
-            Kit.Btn(card, "Resume", Palette.Hex("#2f8a4a"), 40, 110, 320, 66, 32, Close, out l);
-            customBtn = Kit.Btn(card, "Customize", Palette.Hex("#2b4f8a"), 40, 192, 320, 62, 28, () => customise(), out l).gameObject;
-            settingsRt = Kit.Btn(card, "Settings", Palette.Hex("#4a4f5c"), 40, 270, 320, 62, 28, () => settings(), out l);
-            viewRt = Kit.Btn(card, "", Palette.Hex("#6b4a8a"), 40, 348, 320, 62, 26, () => { game.ToggleView(); Refresh(); }, out viewLbl);
-            root.SetActive(false);
-        }
-
-        void Refresh()
-        {
-            viewLbl.text = game.Cockpit ? "Switch to side view" : "Switch to cockpit view";
-            bool cb = game.Cockpit;
-            customBtn.SetActive(cb);
-            Kit.Place(settingsRt, 40, cb ? 270 : 192, 320, 62); Kit.Place(viewRt, 40, cb ? 348 : 270, 320, 62);
-            card.sizeDelta = new Vector2(400, cb ? 450 : 370);
-        }
-
-        public void Open()
-        {
-            if (open) return;
-            open = true; game.ReleasePedals(); game.Hold(true); Refresh(); root.SetActive(true);
-            Sfx.Play("swoosh", .4f);
-        }
-
-        public void Close()
-        {
-            if (!open) return;
-            open = false; game.Hold(false); root.SetActive(false);
-        }
-    }
-
     /// <summary>The cosmetics panel: paint, suit, wheel, hanging charm and dash sticker, each with arrows. Choices are saved.</summary>
     public class CustomizeUi
     {

@@ -2,22 +2,27 @@
 
 A rough-and-tough monster truck smash-up for kids around 6, made in Unity. Dusk skies over factories and cranes, rusted trucks, scrap, smoke and sparks. There is a score and a combo multiplier, but no way to fail: nothing ever slows the truck down.
 
+## Main menu
+
+The game opens on a main menu: **Side view**, **Cockpit view**, Customize, Stickers, Settings and Quit (desktop). The best score shows under the buttons. **Main menu** on the pause screen brings you back.
+
 ## Two ways to play
 
 - **Side view** (the default): the truck drives itself along the road and you jump over and smash things. Controls below.
-- **Cockpit view** (the wheel button under the gear, or **Tab** / **V**): you are inside the truck looking down a three-lane road, and *you* steer. Smash, flatten and collect the same things as they come at you. The parent corner can set which view the game starts in.
+- **Cockpit view** (the wheel button under the gear, or **Tab** / **V**): you are inside the truck looking down a three-lane road, and *you* steer. Smash, flatten and collect the same things as they come at you.
   - **Steer:** Left / Right or A / D, the left stick on a gamepad, or hold the mouse or a finger to the left or right of the screen.
   - **Gas and brake:** Up / Down or W / S, or the right and left triggers.
-  - **Nitro:** smashes and flattened cars charge the four flames on the roof panel; when all four are lit the nitro button on the dash flashes. Press **Space** / **Enter** / the A button, or click the button, for turbo. Turbo stays on for about six seconds.
+  - **Jump:** **Space**, the pad's A button, or the jump button above the gas pedal. A short hop that clears low props and cars.
+  - **Nitro:** smashes and flattened cars charge the four flames on the roof panel; when all four are lit the nitro button on the dash flashes. Press **Enter** / **N**, the pad's B button or right bumper, or click the button, for turbo. Turbo stays on for about six seconds.
   - **Wipers:** **Z** / **C** or the X button (they also run by themselves when the glass is dirty). **P** or the Y button changes the paint colour.
-  - Everything in the cab moves: the wheel turns and the gloved hands follow it, the gauges and the gear lever follow your speed, the dice swing, the switches flip, the windshield cracks and fills with mud, and the hood bounces.
+  - Everything in the cab moves: the wheel turns and the gloved hands follow it, the gauges and the gear lever follow your speed, the dice swing, the switches flip, the windshield cracks, and mud dries and wipes off within a couple of seconds, and the hood bounces.
   - Props are still smashed with debris flying back at the windshield, barrels still blow up their neighbours, and launch pads still throw the truck into the air. There is no way to lose and nothing slows you down except the dirt shoulder.
 
 ## Pause, pedals and cosmetics (both views)
 
 - **Pause:** the pause button at the top right, **Esc**, or the pad's Start button. The world freezes and the screen offers Resume, Customize (in the cab), Settings and a switch between the two views. Esc also closes whatever panel is open.
 - **Gas, brake and cruise:** the truck cruises by default. Hold the **gas pedal** (bottom right) to speed up without using the nitro, or the **brake pedal** (bottom left) to slow down; let go and it settles back to cruising. Keys: **Right / D** and **Left / A** in the side view, **Up / Down** or **W / S** in the cockpit, or the right and left triggers on a pad.
-- **Customize** (the palette button on the left, cockpit view only): paint colour, driver suit colour, steering wheel colour, the charm hanging from the mirror (dice, skull, pine tree or nothing) and the dash sticker (skull, flame, star or nothing). Choices are saved. In the side view the colour, truck and costume buttons on the screen do the same job.
+- **Customize** (the palette button on the left, cockpit view only): paint colour, driver suit colour, steering wheel colour, the charm hanging from the mirror (dice, skull, pine tree or nothing) and the dash sticker (skull, flame, star or nothing). Choices are saved. In the side view the colour, truck and costume buttons on the screen do the same job. The Customize button is also on the main menu.
 
 ## How to play (side view)
 

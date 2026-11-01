@@ -69,6 +69,7 @@ namespace BigWheels.EditorTools
             string P(string n) => Path.Combine(dir, tag + "_" + n + ".png");
 
             Shot(cam, rt, P("00_attract"));
+            Step(g, 3); Shot(cam, rt, P("00_menu"));
             g.StartGame();
             Step(g, 22);
             Shot(cam, rt, P("01_first_sticker"));
@@ -171,6 +172,8 @@ namespace BigWheels.EditorTools
             Settings.WorldLock = -1;
             g.SetWorld(0); g.SetCockpit(true); g.DebugDrive(0f, 0f);
             Step(g, 30); Shot(cam, rt, P("70_cockpit_idle"));
+            g.DebugJump(); Step(g, 14); bool up = g.Airborne; Shot(cam, rt, P("84_cockpit_jump")); Step(g, 70); bool down = !g.Airborne;
+            Debug.Log($"[BigWheels] {tag}: cockpit jump airborne after 14 frames={up} on the ground again after 70={down} (expect True True)");
             g.OpenCustomize(); Step(g, 6); Shot(cam, rt, P("81_customize")); g.CloseCustomize();
             g.CycleCos(1, 2); g.CycleCos(2, 1); g.CycleCos(3, 1); g.CycleCos(4, 1); g.CycleCos(0, 3); Step(g, 10); Shot(cam, rt, P("82_cockpit_custom"));
             g.CycleCos(1, -2); g.CycleCos(2, -1); g.CycleCos(3, -1); g.CycleCos(4, -1); g.CycleCos(0, -3);
@@ -195,7 +198,14 @@ namespace BigWheels.EditorTools
             Step(g, 60 * 40, f => g.DebugDrive(Mathf.Sin(f * .021f) * 1.1f, Mathf.Sin(f * .007f) * .6f + .2f));
             Shot(cam, rt, P("7b_cockpit_soak"));
             Debug.Log($"[BigWheels] {tag}: cockpit objects={g.CockpitObjects} lateral={g.CabX:F2} score={g.Score} (lateral must stay within 5.4)");
-            g.DebugDrive(float.NaN, 0f); g.SetCockpit(false); Step(g, 20);
+            g.DebugDrive(float.NaN, 0f);
+            // main menu round trip: back to the menu from play, then start the cockpit with a fresh score, then the side view again
+            g.ReturnToMenu(); Step(g, 12); Shot(cam, rt, P("90_menu_again"));
+            Debug.Log($"[BigWheels] {tag}: after ReturnToMenu started={g.Started} cockpit={g.Cockpit} (expect False False)");
+            g.BeginPlay(true); Step(g, 20);
+            Debug.Log($"[BigWheels] {tag}: BeginPlay(cockpit) started={g.Started} cockpit={g.Cockpit} score={g.Score} (expect True True 0)");
+            g.ReturnToMenu(); Step(g, 5); g.BeginPlay(false); Step(g, 20);
+            Debug.Log($"[BigWheels] {tag}: BeginPlay(side) started={g.Started} cockpit={g.Cockpit} (expect True False)");
 
             // parent corner, break screen, and a locked world
             Settings.FlushBest(); Settings.ForgetCache();

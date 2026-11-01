@@ -45,7 +45,7 @@ namespace BigWheels
         readonly GameObject dim, breakGo;
         readonly RectTransform card, zRt, truckRt, moonRt;
         readonly Slider volume;
-        readonly Text engineLbl, worldLbl, breakLbl, resetLbl, screenLbl, sizeLbl, viewLbl;
+        readonly Text engineLbl, worldLbl, breakLbl, resetLbl, screenLbl, sizeLbl;
         readonly RectTransform[] starRt = new RectTransform[7];
         float cw, ch, resetArm, resetDone;
         bool open, breakOn;
@@ -94,7 +94,6 @@ namespace BigWheels
                 int i = System.Array.IndexOf(BreakChoices, Settings.BreakMinutes); Settings.BreakMinutes = BreakChoices[(i + 1) % BreakChoices.Length];
                 game.ResetBreakTimer(); Refresh();
             }, out breakLbl);
-            MakeButton(card, "", Palette.Hex("#e0e7ff"), () => { Settings.CockpitDefault = !Settings.CockpitDefault; Refresh(); }, out viewLbl);
             if (DisplayOptions.Show)
             {
                 MakeButton(card, "", Palette.Hex("#e0e7ff"), () => { DisplayOptions.ToggleFullscreen(); Refresh(); }, out screenLbl);
@@ -204,7 +203,6 @@ namespace BigWheels
             engineLbl.text = "Engine hum: " + (Settings.EngineOn ? "On" : "Off");
             worldLbl.text = "World: " + WorldNames[Settings.WorldLock + 1];
             breakLbl.text = "Break reminder: " + (Settings.BreakMinutes == 0 ? "Off" : Settings.BreakMinutes + " min");
-            viewLbl.text = "Start in: " + (Settings.CockpitDefault ? "Cockpit view" : "Side view");
             if (screenLbl != null)
             {
                 screenLbl.text = "Screen: " + (Settings.FullScreen ? "Fullscreen" : "Windowed");
