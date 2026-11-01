@@ -157,10 +157,24 @@ namespace BigWheels.EditorTools
             Step(g, 200);
             int s = 0;
 
+            // pedals: cruise, gas and brake change the speed; pause stops the world
+            float w0 = g.WorldX; Step(g, 60); float cruise = g.WorldX - w0;
+            g.DebugPedal(true, false); Step(g, 90); w0 = g.WorldX; Step(g, 60); float fast = g.WorldX - w0;
+            g.DebugPedal(false, true); Step(g, 90); w0 = g.WorldX; Step(g, 60); float slow = g.WorldX - w0;
+            g.DebugPedal(false, false); Step(g, 90);
+            Debug.Log($"[BigWheels] {tag}: distance in 1s: cruise={cruise:F0} gas={fast:F0} brake={slow:F0} (expect gas > cruise > brake)");
+            g.OpenPause(); Step(g, 8); Shot(cam, rt, P("80_pause")); w0 = g.WorldX; Step(g, 30);
+            Debug.Log($"[BigWheels] {tag}: moved while paused = {g.WorldX - w0:F2} (expect 0)");
+            g.ClosePause(); Step(g, 5);
+
             // first-person cockpit: steering, smashing, a barrel blast, turbo, mud and wipers, then the other worlds
             Settings.WorldLock = -1;
             g.SetWorld(0); g.SetCockpit(true); g.DebugDrive(0f, 0f);
             Step(g, 30); Shot(cam, rt, P("70_cockpit_idle"));
+            g.OpenCustomize(); Step(g, 6); Shot(cam, rt, P("81_customize")); g.CloseCustomize();
+            g.CycleCos(1, 2); g.CycleCos(2, 1); g.CycleCos(3, 1); g.CycleCos(4, 1); g.CycleCos(0, 3); Step(g, 10); Shot(cam, rt, P("82_cockpit_custom"));
+            g.CycleCos(1, -2); g.CycleCos(2, -1); g.CycleCos(3, -1); g.CycleCos(4, -1); g.CycleCos(0, -3);
+            g.OpenPause(); Step(g, 6); Shot(cam, rt, P("83_pause_cockpit")); g.ClosePause(); Step(g, 4);
             g.DebugCSpawn('k', 55, 0f); g.DebugCSpawn('x', 78, 2.1f); g.DebugCSpawn('c', 98, -2.1f); g.DebugCSpawn('b', 36, 0f); g.DebugCSpawn('m', 120, 0f);
             g.DebugDrive(-1f, .5f);
             Step(g, 36); Shot(cam, rt, P("71_cockpit_steer_left"));

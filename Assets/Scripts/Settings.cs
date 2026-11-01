@@ -8,7 +8,7 @@ namespace BigWheels
         const string VolKey = "bw_volume", EngineKey = "bw_engine", WorldKey = "bw_world", BreakKey = "bw_break", FullKey = "bw_full", WinKey = "bw_win", BestKey = "bw_best", CockKey = "bw_cockpit";
         static bool loaded;
         static float volume = 1f; static bool engine = true; static int world = -1, brk;
-        static bool full, bestDirty, cockpit; static int win = 1, best;
+        static bool full, bestDirty, cockpit; static int win = 1, best; static readonly int[] cos = new int[5];
 
         static void Load()
         {
@@ -18,6 +18,7 @@ namespace BigWheels
                 volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolKey, 1f)); engine = PlayerPrefs.GetInt(EngineKey, 1) == 1;
                 world = Mathf.Clamp(PlayerPrefs.GetInt(WorldKey, -1), -1, 3); brk = Mathf.Max(0, PlayerPrefs.GetInt(BreakKey, 0));
                 full = PlayerPrefs.GetInt(FullKey, 0) == 1; win = Mathf.Clamp(PlayerPrefs.GetInt(WinKey, 1), 0, 4); best = Mathf.Max(0, PlayerPrefs.GetInt(BestKey, 0)); cockpit = PlayerPrefs.GetInt(CockKey, 0) == 1;
+                for (int i = 0; i < cos.Length; i++) cos[i] = Mathf.Max(0, PlayerPrefs.GetInt("bw_cos" + i, 0));
             }
             catch { }
         }
@@ -27,7 +28,9 @@ namespace BigWheels
             {
                 PlayerPrefs.SetFloat(VolKey, volume); PlayerPrefs.SetInt(EngineKey, engine ? 1 : 0);
                 PlayerPrefs.SetInt(WorldKey, world); PlayerPrefs.SetInt(BreakKey, brk);
-                PlayerPrefs.SetInt(FullKey, full ? 1 : 0); PlayerPrefs.SetInt(WinKey, win); PlayerPrefs.SetInt(BestKey, best); PlayerPrefs.SetInt(CockKey, cockpit ? 1 : 0); PlayerPrefs.Save();
+                PlayerPrefs.SetInt(FullKey, full ? 1 : 0); PlayerPrefs.SetInt(WinKey, win); PlayerPrefs.SetInt(BestKey, best); PlayerPrefs.SetInt(CockKey, cockpit ? 1 : 0);
+                for (int i = 0; i < cos.Length; i++) PlayerPrefs.SetInt("bw_cos" + i, cos[i]);
+                PlayerPrefs.Save();
             }
             catch { }
         }
@@ -44,6 +47,9 @@ namespace BigWheels
         public static bool FullScreen { get { Load(); return full; } set { Load(); full = value; Save(); } }
         /// <summary>True = the game opens in the first-person cockpit view.</summary>
         public static bool CockpitDefault { get { Load(); return cockpit; } set { Load(); cockpit = value; Save(); } }
+        /// <summary>Saved cosmetic choices: 0 paint, 1 suit, 2 wheel, 3 hanging charm, 4 dash sticker.</summary>
+        public static int GetCos(int i) { Load(); return cos[i]; }
+        public static void SetCos(int i, int v) { Load(); cos[i] = Mathf.Max(0, v); Save(); }
         /// <summary>Index into DisplayOptions.Sizes for the windowed size.</summary>
         public static int WindowSize { get { Load(); return win; } set { Load(); win = Mathf.Clamp(value, 0, 4); Save(); } }
         /// <summary>Best score over all runs. Kept in memory while playing and written out by FlushBest.</summary>
@@ -54,7 +60,7 @@ namespace BigWheels
         public static void ResetAll()
         {
             try { PlayerPrefs.DeleteKey(VolKey); PlayerPrefs.DeleteKey(EngineKey); PlayerPrefs.DeleteKey(WorldKey); PlayerPrefs.DeleteKey(BreakKey);
-                      PlayerPrefs.DeleteKey(FullKey); PlayerPrefs.DeleteKey(WinKey); PlayerPrefs.DeleteKey(BestKey); PlayerPrefs.DeleteKey(CockKey); } catch { }
+                      PlayerPrefs.DeleteKey(FullKey); PlayerPrefs.DeleteKey(WinKey); PlayerPrefs.DeleteKey(BestKey); PlayerPrefs.DeleteKey(CockKey); for (int i = 0; i < 5; i++) PlayerPrefs.DeleteKey("bw_cos" + i); } catch { }
             loaded = false; bestDirty = false;
         }
         public static void ForgetCache() { loaded = false; }

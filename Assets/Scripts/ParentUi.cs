@@ -50,6 +50,8 @@ namespace BigWheels
         float cw, ch, resetArm, resetDone;
         bool open, breakOn;
         public bool IsOpen => open || breakOn;
+        public bool CardOpen => open;
+        public bool BreakOpen => breakOn;
 
         public ParentUi(Game game, Transform canvasRoot)
         {

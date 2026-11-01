@@ -22,7 +22,7 @@ namespace BigWheels
         class Splat { public SpriteRenderer sr; public Vector2 pos; public float alpha, size; public bool on; }
 
         GameObject cockRoot; Transform cabT;
-        SpriteRenderer cSky, cSun, cRoad, cVeil, cFlash, cGlow, cFrame, cHood, cWheelRing, cMark, cCracks, cNitro, cNitroGlow, cNitroFlap, cMic, cShift;
+        SpriteRenderer cSky, cSun, cRoad, cVeil, cFlash, cGlow, cFrame, cHood, cWheelRing, cMark, cCracks, cNitro, cNitroGlow, cNitroFlap, cMic, cShift, cSticker;
         readonly SpriteRenderer[] cCloud = new SpriteRenderer[4], cHillFar = new SpriteRenderer[2], cHillNear = new SpriteRenderer[2];
         readonly SpriteRenderer[] cSpokes = new SpriteRenderer[3], cGloves = new SpriteRenderer[2], cSleeves = new SpriteRenderer[2];
         readonly SpriteRenderer[] cNeedles = new SpriteRenderer[4], cLevers = new SpriteRenderer[4], cDice = new SpriteRenderer[2], cWipers = new SpriteRenderer[2];
@@ -123,6 +123,7 @@ namespace BigWheels
             cHood = P(CabArt.Hood[0], 0, 0, 1700);
             cHoodFlames[0] = P(SmashArt.Flame, -176, -64, 1705); cHoodFlames[1] = P(SmashArt.Flame, 176, -64, 1705);
             cFrame = P(CabArt.Frame, 0, 0, 1800);
+            cSticker = P(CabArt.DashSticker[0], -300, -28, 1811);
             float[,] g = { { -228, -26, 1f }, { -160, -22, .8f }, { 176, -22, .55f }, { 212, -26, .72f } };
             for (int i = 0; i < 4; i++) { cNeedles[i] = P(CabArt.Needle, g[i, 0], g[i, 1], 1810); cNeedles[i].transform.localScale = Vector3.one * g[i, 2]; }
             for (int i = 0; i < 4; i++) cLevers[i] = P(CabArt.Lever, 142 + i * 22, -43, 1812);
@@ -164,6 +165,8 @@ namespace BigWheels
                 if (gp.buttonSouth.wasPressedThisFrame) nitro = true;
                 if (gp.buttonWest.wasPressedThisFrame) wipe = true;
             }
+            if (PedalGas) gas += 1f;
+            if (PedalBrake) gas -= 1f;
             if (cPtrDown) steer = Mathf.Clamp((cPtrX / Mathf.Max(1f, W) - .5f) * 3f, -1f, 1f);
             steer = Mathf.Clamp(steer, -1f, 1f); gas = Mathf.Clamp(gas, -1f, 1f);
             if (!float.IsNaN(dbgSteer)) { steer = dbgSteer; gas = dbgGas; }
@@ -657,7 +660,17 @@ namespace BigWheels
             cabT.rotation = Quaternion.Euler(0, 0, -cpv * .35f);
             float dt = Mathf.Min(.05f, Time.unscaledDeltaTime);
 
-                        // hood (tinted per paint colour) with a bounce
+                        
+            // cosmetics chosen in the customise panel
+            int suitI = Cos(1), wheelI = Cos(2), hangI = Cos(3), stickI = Cos(4);
+            Color wheelTint = WheelTints[wheelI];
+            cWheelRing.color = wheelTint; for (int i = 0; i < 3; i++) cSpokes[i].color = wheelTint;
+            for (int i = 0; i < 2; i++) cSleeves[i].color = SuitTints[suitI];
+            for (int i = 0; i < 2; i++) { cDice[i].enabled = hangI < 3; if (hangI < 3) cDice[i].sprite = CabArt.Hang[hangI]; }
+            cMic.enabled = true;
+            cSticker.enabled = stickI < 3; if (stickI < 3) cSticker.sprite = CabArt.DashSticker[stickI];
+
+            // hood (tinted per paint colour) with a bounce
             cHood.sprite = CabArt.Hood[ColorIndex];
             cHood.transform.localPosition = new Vector3(0, -cBob / 100f * .8f, 0);
             for (int i = 0; i < 2; i++)

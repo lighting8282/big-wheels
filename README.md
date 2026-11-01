@@ -13,6 +13,12 @@ A rough-and-tough monster truck smash-up for kids around 6, made in Unity. Dusk 
   - Everything in the cab moves: the wheel turns and the gloved hands follow it, the gauges and the gear lever follow your speed, the dice swing, the switches flip, the windshield cracks and fills with mud, and the hood bounces.
   - Props are still smashed with debris flying back at the windshield, barrels still blow up their neighbours, and launch pads still throw the truck into the air. There is no way to lose and nothing slows you down except the dirt shoulder.
 
+## Pause, pedals and cosmetics (both views)
+
+- **Pause:** the pause button at the top right, **Esc**, or the pad's Start button. The world freezes and the screen offers Resume, Customize (in the cab), Settings and a switch between the two views. Esc also closes whatever panel is open.
+- **Gas, brake and cruise:** the truck cruises by default. Hold the **gas pedal** (bottom right) to speed up without using the nitro, or the **brake pedal** (bottom left) to slow down; let go and it settles back to cruising. Keys: **Right / D** and **Left / A** in the side view, **Up / Down** or **W / S** in the cockpit, or the right and left triggers on a pad.
+- **Customize** (the palette button on the left, cockpit view only): paint colour, driver suit colour, steering wheel colour, the charm hanging from the mirror (dice, skull, pine tree or nothing) and the dash sticker (skull, flame, star or nothing). Choices are saved. In the side view the colour, truck and costume buttons on the screen do the same job.
+
 ## How to play (side view)
 
 - **Tap anywhere** to jump. Tap again in the air to do a front flip. (Desktop: Space or Up Arrow; **F11** toggles fullscreen.)
@@ -69,6 +75,7 @@ Everything is generated in code, so there are no art or audio files to manage.
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
 | `Assets/Scripts/Cockpit.cs`, `Cab.cs` | The first-person mode: a pseudo-3D road drawn into a texture each frame, scaled sprites coming down it, driving and collisions, and the animated cab with all its parts (a `partial` of `Game`; the cab sprites are in `CabArt`) |
+| `Assets/Scripts/Panels.cs`, `Cosmetics.cs` | The pause and customise screens and the on-screen pedals; the pedal input and the saved cosmetic choices (a `partial` of `Game`) |
 | `Assets/Scripts/Smash.cs` | Smashable props (crates, bricks, pins, barrels, glass, fence) and their art, flying debris, chain explosions, the four-flame turbo meter and screen shake (a `partial` of `Game`) |
 | `Assets/Scripts/Score.cs`, `Display.cs` | Score, combo and the saved best score (a `partial` of `Game`); fullscreen and window-size options for desktop builds |
 | `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 31 stickers (saved in PlayerPrefs; the bit mask is an int, so keep it at 31 or fewer), their small icons, and the sticker book screen |

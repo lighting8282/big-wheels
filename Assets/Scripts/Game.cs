@@ -163,6 +163,7 @@ namespace BigWheels
             BuildScenery();
             truckRoot = new GameObject("Truck").transform; truckRoot.SetParent(worldRoot, false);
             pivot = new GameObject("Pivot").transform; pivot.SetParent(truckRoot, false);
+            ColorIndex = Mathf.Clamp(Settings.GetCos(0), 0, Palette.Truck.Length - 1);
             RebuildTruck();
             stems = new Pool(this, Art.White, -52, worldRoot); petals = new Pool(this, Art.Dot, -51, worldRoot); centers = new Pool(this, Art.Dot, -50, worldRoot);
             pebbles = new Pool(this, Art.Dot, -54, worldRoot);
@@ -267,6 +268,7 @@ namespace BigWheels
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.upArrowKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame)) Act();
             if (kb != null && kb.f11Key.wasPressedThisFrame) DisplayOptions.ToggleFullscreen();
             if (kb != null && (kb.tabKey.wasPressedThisFrame || kb.vKey.wasPressedThisFrame)) ToggleView();
+            if ((kb != null && kb.escapeKey.wasPressedThisFrame) || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)) EscapePressed();
             Tick(Mathf.Min(.05f, UnityEngine.Time.unscaledDeltaTime));
         }
 
@@ -373,7 +375,7 @@ namespace BigWheels
         public void SetColor(int i)
         {
             if (!Started) StartGame();
-            ColorIndex = i; body.sprite = Def.Body[i];
+            ColorIndex = i; Settings.SetCos(0, i); body.sprite = Def.Body[i];
             foreach (var w in wheels) w.sprite = Art.WheelToy[i];
             if (arm) arm.sprite = Def.Arm[i];
             if (lid) lid.sprite = Def.Lid[i];
@@ -578,7 +580,10 @@ namespace BigWheels
                 if (playSeconds >= Settings.BreakMinutes * 60f) { playSeconds = 0; hud.ShowBreak(); }
             }
             SmashStep(dt); StepScore(dt);
-            t += dt; worldX += Speed * spdMul * dt; truck.wheel += Speed * spdMul * dt / Def.WheelR; sirenCd -= dt;
+            float gasIn = Started ? ReadSideGas() : 0f;
+            gasMul += ((1f + gasIn * .45f) - gasMul) * Mathf.Min(1f, dt * 2.5f);
+            float runSpeed = Speed * spdMul * gasMul;
+            t += dt; worldX += runSpeed * dt; truck.wheel += runSpeed * dt / Def.WheelR; sirenCd -= dt;
             float cx = worldX + TX;
             while (spawnX < worldX + Wl + 300) Spawn();
             while (animalX < worldX + Wl + 300) { SpawnAnimal(animalX); animalX += Random.Range(380f, 760f); }
@@ -667,7 +672,7 @@ namespace BigWheels
                 p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; p.rot += p.vr * dt;
                 if ((p.kind >= PCrate && p.kind <= PPin) || p.kind == PShard) DebrisFloor(p, dt);
             }
-            Sfx.SetEngine(46 + (truck.air ? 22 : 0) + (turboT > 0 ? 18 : 0) + 5 * Mathf.Sin(t * 14));
+            Sfx.SetEngine(46 + (truck.air ? 22 : 0) + (turboT > 0 ? 18 : 0) + (gasMul - 1f) * 20f + 5 * Mathf.Sin(t * 14));
         }
 
         void StepAnimals(float cx, float dt)

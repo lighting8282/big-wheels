@@ -10,7 +10,7 @@ namespace BigWheels
     public static class CabArt
     {
         public static Sprite Frame, WheelRing, Spoke, Glove, Sleeve, Needle, Lever, NitroBtn, NitroFlap, Dice, Mic, Cracks, Wiper;
-        public static Sprite[] Hood = new Sprite[7], Scenery = new Sprite[5];
+        public static Sprite[] Hood = new Sprite[7], Scenery = new Sprite[5], Hang = new Sprite[3], DashSticker = new Sprite[3];
         static bool built;
         static readonly Color Clear = new Color(0, 0, 0, 0);
         static Color X(string h) => Palette.Hex(h);
@@ -78,8 +78,6 @@ namespace BigWheels
                 p.Fill(Shapes.RRect(-352, -52, 22, 52, 6), X("#c0282d"), 2.4f, edge);                        // fire extinguisher
                 p.Fill(Shapes.RRect(-346, -60, 10, 9, 1.5f), dark); p.Fill(Shapes.Capsule(-344, -60, -326, -64, 1.8f), dark);
                 p.Fill(Shapes.Circle(-341, -36, 4.4f), Color.white, 1.4f); p.Fill(Shapes.RRect(-352, -14, 22, 5, 0), dark);
-                p.Fill(Shapes.Circle(-300, -28, 10), Color.white, 2, edge);                                  // skull sticker
-                p.Fill(Shapes.Circle(-304, -30, 2.6f), edge); p.Fill(Shapes.Circle(-296, -30, 2.6f), edge); p.Fill(Shapes.RRect(-304, -23, 8, 4, 0), edge);
                 p.Fill(Shapes.Ellipse(-40, -30, 70, 8), new Color(0, 0, 0, .25f)); p.Fill(Shapes.Ellipse(160, -6, 50, 7), new Color(0, 0, 0, .25f));
                 p.Grunge(77, .5f, .5f);
             });
@@ -107,22 +105,22 @@ namespace BigWheels
             WheelRing = Art.Make(-142, -96, 142, 0, Vector2.zero, p =>
             {
                 var ring = Shapes.Ellipse(0, 14, 124, 92);
-                p.Fill(ring, Clear, 26, X("#12141a")); p.Fill(ring, Clear, 18, X("#2b303a")); p.Fill(ring, Clear, 2.6f, X("#6a7384"));
+                p.Fill(ring, Clear, 26, X("#3a3d46")); p.Fill(ring, Clear, 18, X("#a0a6b2")); p.Fill(ring, Clear, 2.6f, X("#f0f4fa"));
             });
             Spoke = Art.Make(-9, 0, 9, 100, Vector2.zero, p =>
             {
-                p.Fill(Shapes.RRect(-8, 0, 16, 100, 3), X("#2b303a"), 2.4f, edge); p.Fill(Shapes.RRect(-2, 4, 4, 92, 2), X("#6a7384"));
+                p.Fill(Shapes.RRect(-8, 0, 16, 100, 3), X("#a0a6b2"), 2.4f, X("#3a3d46")); p.Fill(Shapes.RRect(-2, 4, 4, 92, 2), X("#f0f4fa"));
             });
             Glove = Art.Make(-30, -24, 30, 24, Vector2.zero, p =>
             {
                 p.Fill(Shapes.Ellipse(0, 0, 25, 16), X("#1d1d24"), 2.5f, edge);
-                p.Fill(Shapes.RRect(-22, -9, 44, 6, 3), yel);
+                p.Fill(Shapes.RRect(-22, -9, 44, 6, 3), Color.white);
                 for (int k = 0; k < 3; k++) p.Fill(Shapes.Capsule(-10 + k * 10, -15, -10 + k * 10, -7, .9f), edge);
                 p.Fill(Shapes.Ellipse(-8, -7, 9, 4), new Color(1, 1, 1, .15f));
             });
             Sleeve = Art.Make(-24, 0, 24, 100, Vector2.zero, p =>
             {
-                p.Fill(Shapes.RRect(-22, 0, 44, 100, 4), X("#c0282d"), 2.4f, edge); p.Fill(Shapes.RRect(-23, 0, 46, 10, 3), X("#2a2d34"), 2, edge);
+                p.Fill(Shapes.RRect(-22, 0, 44, 100, 4), X("#e6e8ee"), 2.4f, edge); p.Fill(Shapes.RRect(-23, 0, 46, 10, 3), X("#2a2d34"), 2, edge);
             });
 
             // ---- small moving parts ----
@@ -148,6 +146,28 @@ namespace BigWheels
                 p.Fill(Shapes.RRect(-10, 30, 20, 20, 3), Color.white, 2, edge);
                 p.Fill(Shapes.Circle(-4.5f, 36, 1.8f), edge); p.Fill(Shapes.Circle(4.5f, 44, 1.8f), edge); p.Fill(Shapes.Circle(0, 40, 1.8f), edge);
             });
+            Hang[0] = Dice;
+            Hang[1] = Art.Make(-14, 0, 14, 56, Vector2.zero, p =>                         // a little skull on a string
+            {
+                p.Fill(Shapes.Capsule(0, 0, 0, 30, .7f), X("#c9ced8"));
+                p.Fill(Shapes.Circle(0, 40, 10), Color.white, 2, edge); p.Fill(Shapes.RRect(-5, 46, 10, 6, 1.5f), Color.white, 1.6f, edge);
+                p.Fill(Shapes.Circle(-3.6f, 39, 2.6f), edge); p.Fill(Shapes.Circle(3.6f, 39, 2.6f), edge);
+            });
+            Hang[2] = Art.Make(-14, 0, 14, 60, Vector2.zero, p =>                         // a pine-tree air freshener
+            {
+                p.Fill(Shapes.Capsule(0, 0, 0, 22, .7f), X("#c9ced8"));
+                p.Fill(Shapes.Poly(0, 22, 11, 38, 5, 38, 13, 52, -13, 52, -5, 38, -11, 38), X("#3a8a4a"), 2, edge);
+                p.Fill(Shapes.RRect(-2, 52, 4, 6, 1), X("#6b4a30"), 1.4f, edge);
+            });
+            DashSticker[0] = Art.Make(-14, -14, 14, 14, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.Circle(0, 0, 10), Color.white, 2, edge); p.Fill(Shapes.Circle(-4, -2, 2.6f), edge); p.Fill(Shapes.Circle(4, -2, 2.6f), edge); p.Fill(Shapes.RRect(-4, 4, 8, 4, 0), edge);
+            });
+            DashSticker[1] = Art.Make(-14, -14, 14, 14, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.Union(Shapes.Circle(0, 3, 8), Shapes.Poly(-7, 0, 1, -13, 7, 0)), X("#ff8a1f"), 2, edge); p.Fill(Shapes.Union(Shapes.Circle(0, 5, 4), Shapes.Poly(-3, 3, 1, -5, 3, 3)), X("#ffe45e"));
+            });
+            DashSticker[2] = Art.Make(-14, -14, 14, 14, Vector2.zero, p => p.Fill(Shapes.Star(0, 0, 12), Palette.Sun, 2, edge));
             Mic = Art.Make(-10, 0, 10, 42, Vector2.zero, p =>
             {
                 p.Fill(Shapes.Capsule(0, 0, 0, 8, 1.4f), dark);

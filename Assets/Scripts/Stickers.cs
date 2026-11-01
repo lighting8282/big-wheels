@@ -74,7 +74,7 @@ namespace BigWheels
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconWheel, IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
+        public static Sprite IconPause, IconGas, IconBrake, IconPaint, IconWheel, IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
 
@@ -101,6 +101,26 @@ namespace BigWheels
                 for (int i = 0; i < 8; i++) shapes[i + 1] = Shapes.RRect(-6, -29, 12, 14, 2.5f, i * 45f);
                 p.Fill(Shapes.Union(shapes), Palette.Hex("#aab3c8"), 3.4f);
                 p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#2b303a"), 3.4f);
+            });
+            IconPause = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.RRect(-17, -20, 12, 40, 3), Palette.Hex("#e9edf5"), 3); p.Fill(Shapes.RRect(5, -20, 12, 40, 3), Palette.Hex("#e9edf5"), 3);
+            });
+            IconGas = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>                       // gas: two chevrons pointing forward
+            {
+                p.Fill(Shapes.Poly(-22, 4, 0, -18, 22, 4, 22, 14, 0, -8, -22, 14), Palette.Hex("#38c172"), 3);
+                p.Fill(Shapes.Poly(-22, 18, 0, -4, 22, 18, 22, 28, 0, 6, -22, 28), Palette.Hex("#38c172"), 3);
+            });
+            IconBrake = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>                     // brake: a stop sign
+            {
+                p.Fill(Shapes.Poly(-10, -22, 10, -22, 22, -10, 22, 10, 10, 22, -10, 22, -22, 10, -22, -10), Palette.Hex("#d33a2c"), 3);
+                p.Fill(Shapes.RRect(-13, -4, 26, 8, 2), Color.white);
+            });
+            IconPaint = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>                     // customise: a paint palette
+            {
+                p.Fill(Shapes.Ellipse(0, 2, 26, 21), Palette.Hex("#e9edf5"), 3);
+                p.Fill(Shapes.Circle(11, 12, 6), Palette.Hex("#2b303a"), 2.4f);
+                p.Fill(Shapes.Circle(-12, -5, 5), Palette.Hex("#d33a2c")); p.Fill(Shapes.Circle(-2, -13, 5), Palette.Hex("#ffc933")); p.Fill(Shapes.Circle(10, -9, 5), Palette.Hex("#38c172")); p.Fill(Shapes.Circle(-14, 8, 5), Palette.Hex("#3d8bff"));
             });
             // steering wheel: a ring with three spokes
             IconWheel = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>
