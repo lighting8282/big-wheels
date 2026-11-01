@@ -80,6 +80,16 @@ namespace BigWheels
                 new Voice(Wave.Noise, 4000, 1500, .05f, .35f, .17f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .26f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .34f));
             clips["turbo"] = Compose("turbo", new Voice(Wave.Saw, 120, 520, .6f, .22f), new Voice(Wave.Square, 240, 1040, .5f, .1f, .05f), new Voice(Wave.Noise, 800, 4000, .5f, .25f),
                 new Voice(Wave.Tri, 1047, 0, .15f, .2f, .5f), new Voice(Wave.Tri, 1319, 0, .2f, .2f, .6f));
+            clips["bark"] = Compose("bark", new Voice(Wave.Saw, 220, 110, .13f, .3f), new Voice(Wave.Noise, 900, 300, .1f, .2f), new Voice(Wave.Saw, 240, 100, .14f, .3f, .22f), new Voice(Wave.Noise, 900, 300, .1f, .2f, .22f));
+            clips["squeak"] = Compose("squeak", new Voice(Wave.Sine, 1800, 2600, .07f, .14f), new Voice(Wave.Sine, 2400, 1900, .08f, .14f, .1f), new Voice(Wave.Sine, 1900, 2700, .07f, .12f, .22f));
+            clips["caw"] = Compose("caw", new Voice(Wave.Saw, 620, 380, .22f, .2f, 0, .05f), new Voice(Wave.Saw, 600, 360, .24f, .2f, .3f, .05f), new Voice(Wave.Noise, 2200, 900, .2f, .1f));
+            clips["click"] = Compose("click", new Voice(Wave.Noise, 5000, 2500, .025f, .35f), new Voice(Wave.Noise, 5000, 2500, .025f, .35f, .07f), new Voice(Wave.Noise, 5000, 2500, .025f, .35f, .14f), new Voice(Wave.Noise, 5000, 2500, .025f, .3f, .2f), new Voice(Wave.Noise, 5000, 2500, .025f, .3f, .27f));
+            clips["screech"] = Compose("screech", new Voice(Wave.Saw, 1400, 800, .5f, .16f, 0, .06f), new Voice(Wave.Noise, 3500, 1800, .45f, .15f));
+            clips["howl"] = Compose("howl", new Voice(Wave.Sine, 300, 560, .5f, .24f, 0, .015f), new Voice(Wave.Sine, 560, 340, .6f, .24f, .5f, .015f), new Voice(Wave.Tri, 150, 230, .5f, .1f));
+            clips["growl"] = Compose("growl", new Voice(Wave.Saw, 95, 70, .75f, .26f, 0, .09f), new Voice(Wave.Noise, 500, 150, .7f, .2f));
+            clips["bat"] = Compose("bat", new Voice(Wave.Sine, 3200, 4600, .05f, .12f), new Voice(Wave.Sine, 4600, 3200, .05f, .12f, .08f), new Voice(Wave.Sine, 3400, 4800, .05f, .12f, .17f), new Voice(Wave.Sine, 4800, 3400, .05f, .1f, .25f));
+            clips["tires"] = Compose("tires", new Voice(Wave.Sine, 130, 60, .16f, .4f), new Voice(Wave.Noise, 700, 200, .08f, .3f), new Voice(Wave.Sine, 110, 55, .14f, .35f, .17f), new Voice(Wave.Noise, 700, 200, .06f, .25f, .17f),
+                new Voice(Wave.Sine, 95, 50, .12f, .3f, .33f), new Voice(Wave.Sine, 85, 48, .1f, .25f, .46f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));

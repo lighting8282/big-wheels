@@ -51,6 +51,7 @@ namespace BigWheels
                     p.Fill(Shapes.Circle(62, -100, 9), Palette.Steel, 4);
                     p.Fill(Shapes.Circle(90, -78, 6), Palette.Hex("#fff6a8"), 3.5f);
                     p.Fill(Shapes.Arc(46, -80, 11, .15f * Mathf.PI, .85f * Mathf.PI, 2.2f), ink);
+                    p.Grunge(i * 3 + 20);
                 });
                 digArm[i] = Art.Make(-14, -96, 152, 62, Vector2.zero, p =>
                 {
@@ -95,6 +96,7 @@ namespace BigWheels
                     p.Fill(Shapes.RRect(86, -157, 28, 9, 3), Palette.Steel, 3);
                     // water cannon on the roof
                     p.Fill(Shapes.Capsule(36, -102, 52, -124, 5), Palette.Steel, 3);
+                    p.Grunge(i * 3 + 21);
                 });
             }
             var fire = new TruckDef
@@ -123,6 +125,7 @@ namespace BigWheels
                     p.Fill(Shapes.Arc(84, -62, 10, .15f * Mathf.PI, .85f * Mathf.PI, 2.2f), ink);
                     p.Fill(Shapes.Circle(114, -58, 6), Palette.Hex("#fff6a8"), 3.5f);
                     p.Fill(Shapes.RRect(118, -54, 12, 18, 4), Palette.Steel, 3.5f);
+                    p.Grunge(i * 3 + 22);
                 });
                 garLid[i] = Art.Make(-6, -24, 118, 8, Vector2.zero, p => p.Fill(Shapes.RRect(0, -14, 112, 14, 6), dk, 4));
             }

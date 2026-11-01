@@ -37,7 +37,7 @@ namespace BigWheels
     public class ParentUi
     {
         static readonly int[] BreakChoices = { 0, 10, 20, 30 };
-        static readonly string[] WorldNames = { "Auto", "Farm", "Beach", "Snow", "Night" };
+        static readonly string[] WorldNames = { "Auto", "Junkyard", "Desert", "Frozen", "Night" };
         static Font font;
         static Font F => font != null ? font : (font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
 

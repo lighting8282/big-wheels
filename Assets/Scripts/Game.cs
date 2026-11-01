@@ -22,7 +22,7 @@ namespace BigWheels
         const float Gravity = 1900f, Speed = 285f, Tau = Mathf.PI * 2f;
         public const int SlotCount = 3;
         const float WorldSeconds = 75f;
-        static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho", "hoot", "yip", "huff" };
+        public static readonly string[] AnimalSfx = { "bark", "squeak", "caw", "click", "screech", "howl", "growl", "roar", "hoot", "yip", "bat" };
         static int WorldSticker(int w) => w == 3 ? 25 : 12 + w;
         static int AnimalSticker(int kind) => kind < 8 ? 4 + kind : 26 + (kind - 8);
 
@@ -95,7 +95,7 @@ namespace BigWheels
         }
         class Animal { public int kind; public float x, hopT; public bool cheered; public SpriteRenderer sr; }
         class Part { public int kind; public float x, y, vx, vy, g, r, rot, vr, life, max; public Color col; }
-        class Theme { public Sprite sky, hillFar, hillNear, sun, sunHappy; public Color grass, dirt, dirtLt, dirtDk, bg, cloud = Color.white; public bool shells, pines, glow, rays = true; }
+        class Theme { public Sprite sky, hillFar, hillNear, sun, sunHappy; public Color grass, dirt, dirtLt, dirtDk, bg, cloud = Color.white; public bool shells, pines, glow, rays; }
         readonly Truck truck = new();
         TruckDef Def => Trucks.All[TruckType];
         public float TruckHeight => truck.h;
@@ -135,7 +135,7 @@ namespace BigWheels
             if (I != null && I != this) return;
             I = this;
             Application.targetFrameRate = 60; Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            Art.Build(); Art2.Build(); Art3.Build(); SmashArt.Build(); Trucks.Build();
+            Art.Build(); Art2.Build(); Art3.Build(); SmashArt.Build(); Gritty.Apply(); Trucks.Build();
             Sfx.Init(gameObject);
             DisplayOptions.Apply();
 
@@ -149,14 +149,14 @@ namespace BigWheels
 
             themes = new[]
             {
-                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art.Sky, hillFar = Art.HillFar, hillNear = Art.HillNear, grass = Palette.Grass, dirt = Palette.Dirt, dirtLt = Palette.DirtLt, dirtDk = Palette.DirtDk, bg = Palette.Sky2 },
-                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkyBeach, hillFar = Art2.HillSea, hillNear = Art2.HillDunes, grass = Palette.Hex("#f6dfa0"), dirt = Palette.Hex("#e6bd7a"),
-                            dirtLt = Palette.Hex("#f3d596"), dirtDk = Palette.Hex("#c99a55"), bg = Palette.Hex("#fff1c9"), shells = true },
-                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkySnow, hillFar = Art2.HillMountains, hillNear = Art2.HillSnow, grass = Palette.Hex("#f4f9ff"), dirt = Palette.Hex("#dbe9f5"),
-                            dirtLt = Palette.Hex("#eef6fc"), dirtDk = Palette.Hex("#b9d0e6"), bg = Palette.Hex("#eef6fc"), pines = true },
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art.Sky, hillFar = Art.HillFar, hillNear = Art.HillNear, grass = Palette.Hex("#4a4038"), dirt = Palette.Hex("#5c4636"), dirtLt = Palette.Hex("#74594a"), dirtDk = Palette.Hex("#3e2e24"), bg = Palette.Hex("#ff8a3d") },
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkyBeach, hillFar = Art2.HillSea, hillNear = Art2.HillDunes, grass = Palette.Hex("#b98a55"), dirt = Palette.Hex("#a9733f"),
+                            dirtLt = Palette.Hex("#c08a52"), dirtDk = Palette.Hex("#7e532b"), bg = Palette.Hex("#ffe0a0"), shells = true },
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkySnow, hillFar = Art2.HillMountains, hillNear = Art2.HillSnow, grass = Palette.Hex("#c5cfd9"), dirt = Palette.Hex("#9aa8b8"),
+                            dirtLt = Palette.Hex("#b4c0cd"), dirtDk = Palette.Hex("#76859a"), bg = Palette.Hex("#cfd8e2"), pines = true },
                 new Theme { sun = Art3.MoonSky, sunHappy = Art3.MoonSkyHappy, sky = Art2.SkyNight, hillFar = Art2.HillNightFar, hillNear = Art2.HillNightNear,
-                            grass = Palette.Hex("#1f3a55"), dirt = Palette.Hex("#3a3560"), dirtLt = Palette.Hex("#4b4580"), dirtDk = Palette.Hex("#2b2750"),
-                            bg = Palette.Hex("#0a0e30"), cloud = new Color(.30f, .33f, .6f, 1f), glow = true, rays = false }
+                            grass = Palette.Hex("#1b1a2e"), dirt = Palette.Hex("#2a2640"), dirtLt = Palette.Hex("#38335a"), dirtDk = Palette.Hex("#1c1a30"),
+                            bg = Palette.Hex("#05071a"), cloud = new Color(.30f, .33f, .6f, 1f), glow = true, rays = false }
             };
 
             worldRoot = new GameObject("World").transform;
@@ -802,7 +802,8 @@ namespace BigWheels
         }
 
         // ================= particles =================
-        static Color RandomColor() => Palette.Truck[Random.Range(0, Palette.Truck.Length)];
+        static readonly Color[] SparkColors = { Palette.Hex("#ffd23f"), Palette.Hex("#ff8a1f"), Palette.Hex("#ff4a2a"), Color.white, Palette.Hex("#ffb347") };
+        static Color RandomColor() => SparkColors[Random.Range(0, SparkColors.Length)];
         void AddPart(int kind, float x, float y, float vx, float vy, float g, float r, float rot, float vr, float life, Color col) =>
             parts.Add(new Part { kind = kind, x = x, y = y, vx = vx, vy = vy, g = g, r = r, rot = rot, vr = vr, life = life, max = life, col = col });
         void Stars(float x, float y, int n, Color[] cols, float sp)
@@ -894,8 +895,8 @@ namespace BigWheels
                 {
                     float a = (.5f + .5f * Mathf.Sin(t * 2f + flyP[i] * 3f)) * nightFade;
                     Vector3 pos = U(flyX[i] * Wl, flyY[i] * Hl);
-                    var g = flyGlow.Next(); g.transform.position = pos; g.transform.localScale = Vector3.one * .26f; g.color = new Color(.9f, 1f, .4f, .22f * a);
-                    var c = flyCore.Next(); c.transform.position = pos; c.transform.localScale = Vector3.one * .07f; c.color = new Color(1f, 1f, .7f, a);
+                    var g = flyGlow.Next(); g.transform.position = pos; g.transform.localScale = Vector3.one * .26f; g.color = new Color(1f, .45f, .12f, .22f * a);
+                    var c = flyCore.Next(); c.transform.position = pos; c.transform.localScale = Vector3.one * .07f; c.color = new Color(1f, .85f, .5f, a);
                 }
             }
             skyStars.End(); flyGlow.End(); flyCore.End();
@@ -912,7 +913,7 @@ namespace BigWheels
         void DrawGroundDetail(Theme th)
         {
             stems.Begin(); petals.Begin(); centers.Begin(); pebbles.Begin();
-            var shellCols = new[] { Palette.Hex("#ff9fbd"), Color.white, Palette.Hex("#ffb35c"), Palette.Hex("#c9a7ff") };
+            var shellCols = new[] { Palette.Hex("#8a5a3a"), Palette.Hex("#6e4a30"), Palette.Hex("#9c6a44"), Palette.Hex("#5a3e2a") };
             int k0 = Mathf.FloorToInt(worldX / 110) - 1, k1 = Mathf.FloorToInt((worldX + Wl) / 110) + 1;
             for (int k = k0; k <= k1; k++)
             {
@@ -920,28 +921,42 @@ namespace BigWheels
                 if (th.shells)
                 {
                     Dot(petals.Next(), x, y - 3, 7, 5, shellCols[Idx(Hash(k + 3), shellCols.Length)]);
-                    Dot(centers.Next(), x, y - 3, 2.4f, 1.8f, new Color(1, 1, 1, .8f));
+                    Dot(centers.Next(), x - 2, y - 5, 3.2f, 1.8f, new Color(1, 1, 1, .18f));
                     continue;
                 }
                 if (th.pines)
                 {
                     var tr = stems.Next(); Quad(tr, x - 2f, y - 10, x + 2f, y); tr.color = Palette.Hex("#6b4428");
-                    Dot(petals.Next(), x, y - 20, 9, 13, Palette.Hex("#2f8f56"));
-                    Dot(centers.Next(), x, y - 28, 5.5f, 4f, new Color(1, 1, 1, .95f));
+                    Dot(petals.Next(), x, y - 20, 9, 13, Palette.Hex("#24403f"));
+                    Dot(centers.Next(), x, y - 28, 5.5f, 4f, new Color(.85f, .9f, .95f, .9f));
                     continue;
                 }
                 if (th.glow)
                 {
-                    var nc = new[] { Palette.Hex("#7df9ff"), Palette.Hex("#ff9fe5"), Palette.Hex("#fff27a"), Palette.Hex("#b6ff8a") };
-                    var gs = stems.Next(); Quad(gs, x - 1.5f, y - 12, x + 1.5f, y); gs.color = Palette.Hex("#1f6a4a");
+                    var nc = new[] { Palette.Hex("#ff7a2e"), Palette.Hex("#ffb347"), Palette.Hex("#ff4a2a"), Palette.Hex("#ffd23f") };
+                    var gs = stems.Next(); Quad(gs, x - 1.5f, y - 12, x + 1.5f, y); gs.color = Palette.Hex("#2a2438");
                     Dot(petals.Next(), x, y - 15, 6.5f, 6.5f, nc[Idx(Hash(k + 3), nc.Length)]);
                     Dot(centers.Next(), x, y - 15, 2.6f, 2.6f, Color.white);
                     continue;
                 }
-                var col = Palette.Truck[Idx(Hash(k + 3), Palette.Truck.Length)];
-                var st = stems.Next(); Quad(st, x - 1.5f, y - 12, x + 1.5f, y); st.color = Palette.Hex("#2f8f45");
-                Dot(petals.Next(), x, y - 15, 6, 6, col);
-                Dot(centers.Next(), x, y - 15, 2.4f, 2.4f, Color.white);
+                float kind = Hash(k + 3);
+                if (kind < .45f)          // rocks
+                {
+                    Dot(petals.Next(), x, y - 3, 7 + h * 7, 4 + h * 3, Color.Lerp(Palette.Hex("#6a625c"), Palette.Hex("#8a8078"), Hash(k + 9)));
+                    Dot(centers.Next(), x - 2, y - 5, 3.4f, 1.8f, new Color(1, 1, 1, .2f));
+                }
+                else if (kind < .75f)     // dead weeds
+                {
+                    var wk = stems.Next(); Quad(wk, x - 1.1f, y - 14, x + 1.1f, y); wk.color = Palette.Hex("#5a5530");
+                    var w2 = stems.Next(); Quad(w2, x + 4, y - 9, x + 6, y); w2.color = Palette.Hex("#6a6238");
+                    Dot(petals.Next(), x, y - 15, 3, 2.4f, Palette.Hex("#7a7040"));
+                }
+                else                      // scrap and rusty bolts
+                {
+                    var sc = stems.Next(); Quad(sc, x - 8, y - 4, x + 8, y); sc.color = Palette.Hex("#6e5a4a");
+                    var sc2 = stems.Next(); Quad(sc2, x - 5, y - 8, x + 4, y - 4); sc2.color = Palette.Hex("#8a6a52");
+                    Dot(petals.Next(), x + 12, y - 2, 3.2f, 3.2f, Palette.Hex("#8a4a22"));
+                }
             }
             int j0 = Mathf.FloorToInt(worldX / 90) - 1, j1 = Mathf.FloorToInt((worldX + Wl) / 90) + 1;
             for (int k = j0; k <= j1; k++)
@@ -1000,7 +1015,7 @@ namespace BigWheels
                     }
                 case 'b':
                     o.sr.transform.position = U(sx, BASE - o.hh + Mathf.Sin(t * 2 + o.ph) * 8);
-                    o.sr.transform.rotation = Quaternion.Euler(0, 0, -Mathf.Sin(t * 1.5f + o.ph) * .06f * Mathf.Rad2Deg);
+                    o.sr.transform.rotation = Quaternion.Euler(0, 0, -(t * 80f + o.ph * 57f));
                     break;
                 case 'r': case 'p': case 'k': case 'm': case 'n': case 'x': case 'g': case 'f':
                     o.sr.transform.position = U(sx, BASE);

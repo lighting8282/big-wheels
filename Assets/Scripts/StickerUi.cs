@@ -31,21 +31,21 @@ namespace BigWheels
 
             // book button (top left)
             bookBtn = Rt("BookButton", safe); Anchor(bookBtn, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -18), new Vector2(84, 84), new Vector2(0, 1));
-            Img(bookBtn, Art.UiRingFilled, Color.white);
+            Img(bookBtn, Art.UiSteel, Color.white);
             bookBtn.gameObject.AddComponent<Button>().onClick.AddListener(Open);
             var bi = Rt("Icon", bookBtn); Anchor(bi, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(56, 50), new Vector2(.5f, .5f));
             var bimg = Img(bi, Art3.IconBook, Color.white); bimg.preserveAspect = true; bimg.raycastTarget = false;
 
             // reward pop-up (centre of the safe area, ignores taps)
             rewardRt = Rt("Reward", safe); Anchor(rewardRt, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(280, 280), new Vector2(.5f, .5f));
-            rewardBg = Img(rewardRt, Art.UiRingFilled, Color.white); rewardBg.raycastTarget = false;
+            rewardBg = Img(rewardRt, Art.UiSteel, Color.white); rewardBg.raycastTarget = false;
             var ri = Rt("Icon", rewardRt); Anchor(ri, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(190, 190), new Vector2(.5f, .5f));
             rewardIcon = Img(ri, null, Color.white); rewardIcon.preserveAspect = true; rewardIcon.raycastTarget = false;
             rewardGo = rewardRt.gameObject; rewardGo.SetActive(false);
 
             // book page (above everything)
             var bg = Rt("BookBackground", canvasRoot); Stretch(bg);
-            Img(bg, null, Palette.Hex("#fff3d6"));
+            Img(bg, null, Palette.Hex("#15171d"));
             bookBg = bg.gameObject; bookBg.SetActive(false);
 
             bookRoot = Rt("BookPage", canvasRoot); Stretch(bookRoot);
@@ -55,7 +55,7 @@ namespace BigWheels
             var hi = Img(headerRt, Art3.IconBook, Color.white); hi.preserveAspect = true; hi.raycastTarget = false;
 
             closeRt = Rt("Close", bookRoot); Anchor(closeRt, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -18), new Vector2(96, 96), new Vector2(1, 1));
-            Img(closeRt, Art.UiRingFilled, Color.white);
+            Img(closeRt, Art.UiSteel, Color.white);
             closeRt.gameObject.AddComponent<Button>().onClick.AddListener(Close);
             var ci = Rt("Icon", closeRt); Anchor(ci, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(52, 52), new Vector2(.5f, .5f));
             Img(ci, Art3.IconClose, Color.white).raycastTarget = false;
@@ -125,9 +125,9 @@ namespace BigWheels
             for (int i = 0; i < N; i++)
             {
                 var d = Stickers.Get(i); bool have = Stickers.Have(i);
-                cellBg[i].color = have ? d.Bg : new Color(.83f, .85f, .9f);
+                cellBg[i].color = have ? d.Bg : new Color(.36f, .39f, .45f);
                 cellIcon[i].sprite = d.Icon;
-                cellIcon[i].color = have ? Color.white : new Color(0, 0, 0, .25f);
+                cellIcon[i].color = have ? Color.white : new Color(0, 0, 0, .4f);
                 cellIcon[i].rectTransform.localRotation = Quaternion.Euler(0, 0, d.Rot);
             }
         }

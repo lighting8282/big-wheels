@@ -174,6 +174,30 @@ namespace BigWheels
         public int H => h;
         public float Y1 => y1;
 
+        static float N(int s, int a, int b) { float v = Mathf.Sin(s * 12.9898f + a * 78.233f + b * 37.719f) * 43758.5453f; return v - Mathf.Floor(v); }
+
+        /// <summary>Weathers whatever is already drawn: dirt streaks that thicken toward the bottom, rust patches, scratches and paint chips. Dark outlines are left alone.</summary>
+        public void Grunge(int seed, float dirt = .4f, float rust = .45f)
+        {
+            float hh = Mathf.Max(1f, y1 - y0);
+            for (int py = 0; py < h; py++)
+                for (int px = 0; px < w; px++)
+                {
+                    int i = py * w + px; Color c = pix[i];
+                    if (c.a < .6f || c.r + c.g + c.b < .45f) continue;
+                    float lx = x0 + (px + .5f) / Scale, ly = y1 - (py + .5f) / Scale;
+                    float low = Mathf.Clamp01((ly - y0) / hh);
+                    float d = dirt * Mathf.Pow(low, 1.4f) * (.4f + .9f * N(seed + 3, Mathf.FloorToInt(lx / 4f), 0));
+                    c.r *= 1f - d * .75f; c.g *= 1f - d * .8f; c.b *= 1f - d * .9f;
+                    float rs = N(seed + 11, Mathf.FloorToInt(lx / 11f), Mathf.FloorToInt(ly / 11f));
+                    if (rs > .78f) c = Color.Lerp(c, new Color(.52f, .27f, .12f, c.a), rust * (rs - .78f) / .22f);
+                    float sc = Mathf.Repeat(lx * .8f + ly * .5f + seed * 7f, 41f);
+                    if (sc < .9f && N(seed + 17, Mathf.FloorToInt(lx / 24f), Mathf.FloorToInt(ly / 24f)) > .62f) c = Color.Lerp(c, Color.white, .45f);
+                    if (N(seed + 23, Mathf.FloorToInt(lx / 2f), Mathf.FloorToInt(ly / 2f)) > .985f) c = Color.Lerp(c, Color.white, .5f);
+                    pix[i] = c;
+                }
+        }
+
         public Sprite ToSprite(Vector4 border = default)
         {
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
@@ -185,14 +209,14 @@ namespace BigWheels
 
     public static class Palette
     {
-        public static readonly Color Ink = Hex("#1a1a2e"), Sun = Hex("#ffc933"), Sky1 = Hex("#4aa3f0"), Sky2 = Hex("#cde9ff"),
+        public static readonly Color Ink = Hex("#12121c"), Sun = Hex("#ffc933"), Sky1 = Hex("#4aa3f0"), Sky2 = Hex("#cde9ff"),
             Hill1 = Hex("#7fc77a"), Hill2 = Hex("#5aa85f"), Grass = Hex("#4aa956"), Dirt = Hex("#a56a3f"),
             DirtLt = Hex("#bb7f52"), DirtDk = Hex("#7d4a28"), Steel = Hex("#9aa0b4"), Glass = Hex("#d8f1ff"), White = Color.white,
             Mud = Hex("#6b4428");
         public static readonly string[] Names = { "red", "orange", "yellow", "green", "blue", "purple", "pink" };
         public static readonly Color[] Truck =
         {
-            Hex("#e0243b"), Hex("#f06a1a"), Hex("#f4b81c"), Hex("#2fa04a"), Hex("#1f6fe0"), Hex("#7a3bd1"), Hex("#e0368f")
+            Hex("#c0282d"), Hex("#d9631a"), Hex("#e0a916"), Hex("#4a8a3a"), Hex("#2a65b5"), Hex("#6b3fa0"), Hex("#b8307a")
         };
         public static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out var c); return c; }
         public static Color Shade(Color c, float amt)
@@ -207,6 +231,7 @@ namespace BigWheels
     {
         public static Sprite White, Dot, Square, Star, Bubble, Shadow, Sky;
         public static Sprite[] Body, Car, Balloon, SwatchNormal, SwatchSelected, WheelToy;
+        public static Sprite UiSteel, UiSteelSel, UiSteelDim;       // riveted steel buttons (made in Gritty)
         static readonly int[] RimFor = { 4, 4, 5, 6, 2, 3, 4 };   // each tire color gets a contrasting rim color
         public static Sprite Wheel, Brow, EyeWhite, Pupil, Mud, Ramp, Puddle, WashBack, Strip, SunNormal, SunHappy, SunRays, Cloud;
         public static Sprite SpeakerOn, SpeakerOff, PlayTriangle, UiRing, UiRingFilled, SlotEmpty, Roundrect;
@@ -310,6 +335,7 @@ namespace BigWheels
                     p.Fill(Shapes.Circle(104, -112, 9), Palette.Hex("#e9edf3"), 3.5f);
                     p.Fill(Shapes.Circle(104, -112, 5), Palette.Hex("#fff6a8"));
                     p.Fill(Shapes.RRect(104, -92, 16, 18, 5), Palette.Steel, 4);
+                    p.Grunge(i * 5 + 1);
                 });
                 WheelToy[i] = Make(-50, -50, 50, 50, Vector2.zero, p =>
                 {
@@ -404,14 +430,14 @@ namespace BigWheels
                 p.Fill(Shapes.Circle(x, -13, 5), Palette.Hex("#d9dbe8"));
             }
             p.Fill(Shapes.Poly(-34, -40, -22, -62, 26, -62, 40, -40), col, lw);
-            p.Fill(Shapes.Poly(-27, -42, -18, -57, 22, -57, 32, -42), Palette.Glass, lw * .8f);
-            foreach (float x in new[] { -8f, 10f })
-            {
-                p.Fill(Shapes.Circle(x, -50, 5.5f), Color.white, lw * .6f);
-                p.Fill(Shapes.Circle(x + 1, -50, 2.4f), Palette.Ink);
-            }
+            p.Fill(Shapes.Poly(-27, -42, -18, -57, 22, -57, 32, -42), Palette.Hex("#7d98ab"), lw * .8f);
+            p.Fill(Shapes.Capsule(-6, -56, 6, -44, .9f), new Color(1, 1, 1, .7f));           // cracked windscreen
+            p.Fill(Shapes.Capsule(6, -44, 16, -50, .8f), new Color(1, 1, 1, .6f));
+            p.Fill(Shapes.Capsule(-14, -46, -3, -48, .8f), new Color(1, 1, 1, .6f));
             p.Fill(Shapes.RRect(-60, -40, 120, 28, 10), col, lw);
-            p.Fill(Shapes.Circle(52, -30, 5), Palette.Hex("#fff6a8"), lw * .7f);
+            p.Fill(Shapes.RRect(-58, -22, 116, 7, 3), Palette.Hex("#2c2c3e"), 0);               // bumper
+            p.Fill(Shapes.Circle(52, -30, 5), Palette.Hex("#c9a640"), lw * .7f);
+            p.Grunge(9 + (int)(col.g * 40f), .5f, .6f);
         }
 
         static void DrawSun(Painter p, bool happy)

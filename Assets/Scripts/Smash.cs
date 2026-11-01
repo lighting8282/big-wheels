@@ -52,6 +52,7 @@ namespace BigWheels
             Crates = Art.Make(-68, -132, 68, 4, Vector2.zero, p =>
             {
                 DrawCrate(p, -32, -62, 62); DrawCrate(p, 32, -62, 62); DrawCrate(p, 0, -124, 62);
+                p.Grunge(31, .45f, .3f);
             });
 
             // six rows of bricks, every other row shifted half a brick
@@ -71,6 +72,7 @@ namespace BigWheels
                         x += w; i++;
                     }
                 }
+                p.Grunge(37, .45f, .2f);
             });
 
             // bowling pins: three standing a little behind, four in front
@@ -81,7 +83,7 @@ namespace BigWheels
             });
 
             // two red explosive barrels with a flame badge
-            Barrels = Art.Make(-70, -86, 70, 4, Vector2.zero, p => { DrawBarrel(p, -34); DrawBarrel(p, 34); });
+            Barrels = Art.Make(-70, -86, 70, 4, Vector2.zero, p => { DrawBarrel(p, -34); DrawBarrel(p, 34); p.Grunge(43, .5f, .5f); });
 
             // a glass wall: three panes in a frame, with shine
             Glass = Art.Make(-82, -118, 82, 4, Vector2.zero, p =>
@@ -205,7 +207,7 @@ namespace BigWheels
                     }
                     break;
                 case 'n':
-                    Sfx.Play("strike"); pts = 150;
+                    Sfx.Play("tires"); pts = 150;
                     for (int i = 0; i < 7; i++)
                         Debris(PPin, o.x + Random.Range(-64f, 64f), BASE - Random.Range(20f, 70f), spd, k * 1.15f, Random.Range(.8f, 1f), Color.white, 1.25f);
                     break;

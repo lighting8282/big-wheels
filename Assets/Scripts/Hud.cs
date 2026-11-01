@@ -62,7 +62,7 @@ namespace BigWheels
             for (int i = 0; i < Slots; i++)
             {
                 slotRt[i] = Rt("Slot" + i, row); slotRt[i].sizeDelta = new Vector2(84, 84);
-                slotBg[i] = Img(slotRt[i], Art.UiRing, Color.white); slotBg[i].raycastTarget = false;
+                slotBg[i] = Img(slotRt[i], Art.UiSteelDim, Color.white); slotBg[i].raycastTarget = false;
                 var car = carRt[i] = Rt("Car", slotRt[i]); Anchor(car, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(66, 44));
                 slotCar[i] = Img(car, null, Color.white); slotCar[i].preserveAspect = true; slotCar[i].raycastTarget = false; slotCar[i].enabled = false;
             }
@@ -81,7 +81,7 @@ namespace BigWheels
 
             // sound toggle (top right)
             var snd = sndRt = Rt("Sound", safe); Anchor(snd, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-24, -24), new Vector2(96, 96));
-            Img(snd, Art.UiRingFilled, Color.white);
+            Img(snd, Art.UiSteel, Color.white);
             var hold = snd.gameObject.AddComponent<HoldButton>();
             hold.OnTap = () => sndIcon.sprite = game.ToggleMute() ? Art.SpeakerOff : Art.SpeakerOn;
             hold.OnHold = () => parentUi.Open();
@@ -99,7 +99,7 @@ namespace BigWheels
             {
                 int idx = i;
                 truckRt[i] = Rt("Truck" + i, sideRt); truckRt[i].sizeDelta = new Vector2(64, 64);
-                truckBg[i] = Img(truckRt[i], Art2.UiRingSel, Color.white);
+                truckBg[i] = Img(truckRt[i], Art.UiSteel, Color.white);
                 truckRt[i].gameObject.AddComponent<Button>().onClick.AddListener(() => game.SetTruck(idx));
                 var icon = Rt("Icon", truckRt[i]); Anchor(icon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(50, 36));
                 truckIcon[i] = Img(icon, Trucks.All[i].Body[game.ColorIndex], Color.white); truckIcon[i].preserveAspect = true; truckIcon[i].raycastTarget = false;
@@ -110,7 +110,7 @@ namespace BigWheels
             {
                 int idx = i;
                 costumeRt[i] = Rt("Costume" + i, sideRt); costumeRt[i].sizeDelta = new Vector2(64, 64);
-                costumeBg[i] = Img(costumeRt[i], Art.UiRingFilled, Color.white);
+                costumeBg[i] = Img(costumeRt[i], Art.UiSteel, Color.white);
                 costumeRt[i].gameObject.AddComponent<Button>().onClick.AddListener(() => game.ToggleCostume(idx));
                 var icon = Rt("Icon", costumeRt[i]); Anchor(icon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(40, 40));
                 var im = Img(icon, costumeIcons[i], Color.white); im.preserveAspect = true; im.raycastTarget = false;
@@ -118,7 +118,7 @@ namespace BigWheels
 
             // big play button (centre)
             playRt = Rt("Play", safe); Anchor(playRt, new Vector2(.5f, .55f), new Vector2(.5f, .55f), Vector2.zero, new Vector2(300, 300));
-            Img(playRt, Art.UiRingFilled, Color.white);
+            Img(playRt, Art.UiSteel, Color.white);
             playRt.gameObject.AddComponent<Button>().onClick.AddListener(game.StartGame);
             var tri = Rt("Triangle", playRt); Anchor(tri, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(8, 0), new Vector2(170, 170));
             Img(tri, Art.PlayTriangle, Color.white).raycastTarget = false;
@@ -126,7 +126,7 @@ namespace BigWheels
 
             // settings gear for the parent, and the score panel, stacked under the sticker book on the left
             gearRt = Rt("Gear", safe); Anchor(gearRt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -112), new Vector2(76, 76));
-            Img(gearRt, Art.UiRingFilled, Color.white);
+            Img(gearRt, Art.UiSteel, Color.white);
             gearRt.gameObject.AddComponent<Button>().onClick.AddListener(() => parentUi.Open());
             var gicon = Rt("Icon", gearRt); Anchor(gicon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(48, 48));
             Img(gicon, Art3.IconGear, Color.white).raycastTarget = false;
@@ -190,15 +190,15 @@ namespace BigWheels
             for (int i = 0; i < Slots; i++)
             {
                 bool filled = i < g.Slots;
-                slotBg[i].sprite = filled ? Art.UiRingFilled : Art.UiRing;
+                slotBg[i].sprite = filled ? Art.UiSteel : Art.UiSteelDim;
                 slotCar[i].enabled = filled;
                 if (filled) slotCar[i].sprite = Art.Car[g.SlotCols[i]];
                 float pop = g.SlotPop[i];
                 float sc2 = 1f + .35f * Mathf.Sin(pop * Mathf.PI) + (g.Celeb > 0 ? .08f * Mathf.Sin(g.Clock * 14f + i) : 0f);
                 slotRt[i].localScale = Vector3.one * sc2;
             }
-            for (int i = 0; i < Trucks4; i++) truckBg[i].sprite = i == g.TruckType ? Art2.UiRingSel : Art.UiRingFilled;
-            for (int i = 0; i < Costumes; i++) costumeBg[i].sprite = g.Costume[i] ? Art2.UiRingSel : Art.UiRingFilled;
+            for (int i = 0; i < Trucks4; i++) truckBg[i].sprite = i == g.TruckType ? Art.UiSteelSel : Art.UiSteel;
+            for (int i = 0; i < Costumes; i++) costumeBg[i].sprite = g.Costume[i] ? Art.UiSteelSel : Art.UiSteel;
             if (lastColor != g.ColorIndex)
             {
                 lastColor = g.ColorIndex;
@@ -218,7 +218,7 @@ namespace BigWheels
             var p = pops[nextPop++ % pops.Length];
             p.born = Game.I != null ? Game.I.Clock : 0f;
             int slot = nextPop % 4;                       // popups from one blast fan out instead of landing on each other
-            p.rt.anchorMin = p.rt.anchorMax = new Vector2(Mathf.Clamp(fx + (slot - 1.5f) * .07f, .1f, .9f), Mathf.Clamp(fy + slot * .055f, .12f, .86f));
+            p.rt.anchorMin = p.rt.anchorMax = new Vector2(Mathf.Clamp(fx + (slot - 1.5f) * .07f, .27f, .9f), Mathf.Clamp(fy + slot * .055f, .12f, .86f));
             p.t.text = s; p.t.fontSize = 26 + Mathf.Min(mult, 6) * 2;
             p.t.color = mult >= 4 ? Palette.Hex("#ff8a2a") : mult >= 2 ? Palette.Hex("#ffd23f") : Color.white;
         }

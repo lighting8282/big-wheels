@@ -44,15 +44,15 @@ namespace BigWheels
         static void Build()
         {
             defs = new Def[Count];
-            Color truckBg = Palette.Hex("#fff0b3"), animalBg = Palette.Hex("#c9f2d4"), featBg = Palette.Hex("#ffd6e8");
+            Color truckBg = Palette.Hex("#8a7a4a"), animalBg = Palette.Hex("#5a6a54"), featBg = Palette.Hex("#7a5a5a");
             var truckIdx = new[] { 0, 2, 0, 3 };
             var truckSfx = new[] { "honk", "beep", "siren", "lowhonk" };
             for (int i = 0; i < 4; i++) defs[i] = new Def { Icon = Trucks.All[i].Body[truckIdx[i]], Bg = truckBg, Sfx = truckSfx[i] };
-            var animalSfx = new[] { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho", "hoot", "yip", "huff" };
+            var animalSfx = Game.AnimalSfx;
             for (int k = 0; k < 8; k++) defs[4 + k] = new Def { Icon = Art2.Animal[k], Bg = animalBg, Sfx = animalSfx[k] };
-            defs[12] = new Def { Icon = Art3.Barn, Bg = Palette.Hex("#d3f5bd"), Sfx = "swoosh" };
-            defs[13] = new Def { Icon = Art3.Wave, Bg = Palette.Hex("#ffeab0"), Sfx = "swoosh" };
-            defs[14] = new Def { Icon = Art3.Flake, Bg = Palette.Hex("#d9edff"), Sfx = "swoosh" };
+            defs[12] = new Def { Icon = Art3.Barn, Bg = Palette.Hex("#6a6a4a"), Sfx = "swoosh" };
+            defs[13] = new Def { Icon = Art3.Wave, Bg = Palette.Hex("#9a7a4a"), Sfx = "swoosh" };
+            defs[14] = new Def { Icon = Art3.Flake, Bg = Palette.Hex("#5a6a82"), Sfx = "swoosh" };
             defs[15] = new Def { Icon = Trucks.All[0].Body[4], Rot = 180f, Bg = featBg, Sfx = "whee" };
             defs[16] = new Def { Icon = Art.Balloon[0], Bg = featBg, Sfx = "pop" };
             defs[17] = new Def { Icon = Art.Car[1], Bg = featBg, Sfx = "fanfare" };
@@ -63,7 +63,7 @@ namespace BigWheels
             defs[22] = new Def { Icon = Art.Puddle, Bg = featBg, Sfx = "splash" };
             defs[23] = new Def { Icon = Art2.Hat, Bg = featBg, Sfx = "sparkle" };
             defs[24] = new Def { Icon = Art.SunNormal, Bg = featBg, Sfx = "sparkle" };
-            defs[25] = new Def { Icon = Art3.MoonSky, Bg = Palette.Hex("#c9c9f5"), Sfx = "swoosh" };
+            defs[25] = new Def { Icon = Art3.MoonSky, Bg = Palette.Hex("#4a4a7a"), Sfx = "swoosh" };
             for (int k = 0; k < 3; k++) defs[26 + k] = new Def { Icon = Art2.Animal[8 + k], Bg = animalBg, Sfx = animalSfx[8 + k] };
             SmashArt.Build();
             defs[29] = new Def { Icon = SmashArt.Wall, Bg = featBg, Sfx = "crunch" };
@@ -99,8 +99,8 @@ namespace BigWheels
                 var shapes = new Shape[9];
                 shapes[0] = Shapes.Circle(0, 0, 19);
                 for (int i = 0; i < 8; i++) shapes[i + 1] = Shapes.RRect(-6, -29, 12, 14, 2.5f, i * 45f);
-                p.Fill(Shapes.Union(shapes), Palette.Hex("#6b7390"), 3.4f);
-                p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#fffaf0"), 3.4f);
+                p.Fill(Shapes.Union(shapes), Palette.Hex("#aab3c8"), 3.4f);
+                p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#2b303a"), 3.4f);
             });
             IconBook = Art.Make(-32, -28, 32, 28, Vector2.zero, p =>
             {
