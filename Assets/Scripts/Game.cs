@@ -180,6 +180,8 @@ namespace BigWheels
             ApplyTheme(Settings.WorldLock >= 0 ? Settings.WorldLock : 0);
             ComputeLayout();
             Render();
+            CockpitInit();
+            if (Settings.CockpitDefault) SetCockpit(true);
         }
 
         void BuildScenery()
@@ -264,6 +266,7 @@ namespace BigWheels
             var kb = Keyboard.current;
             if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.upArrowKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame)) Act();
             if (kb != null && kb.f11Key.wasPressedThisFrame) DisplayOptions.ToggleFullscreen();
+            if (kb != null && (kb.tabKey.wasPressedThisFrame || kb.vKey.wasPressedThisFrame)) ToggleView();
             Tick(Mathf.Min(.05f, UnityEngine.Time.unscaledDeltaTime));
         }
 
@@ -271,8 +274,8 @@ namespace BigWheels
         {
             ComputeLayout();
             if (hitStop > 0) hitStop = Mathf.Max(0, hitStop - dt);
-            if (!paused) UpdateSim(hitStop > 0 ? dt * .25f : dt);
-            Render();
+            if (Cockpit) { if (!paused) CockpitUpdate(hitStop > 0 ? dt * .25f : dt); CockpitRender(); }
+            else { if (!paused) UpdateSim(hitStop > 0 ? dt * .25f : dt); Render(); }
             hud.Refresh(this);
         }
 
@@ -304,6 +307,7 @@ namespace BigWheels
             if (paused) return;
             if (!Started) { StartGame(); return; }
             float lx = px.x / S, ly = (H - px.y) / S;
+            if (Cockpit) { CockpitTap(lx, ly, px); return; }
             if ((new Vector2(lx, ly) - SunPos).sqrMagnitude < 75f * 75f) { SunTap(); return; }
             foreach (var a in animals)
                 if (Mathf.Abs(lx - (a.x - worldX)) < 62 && ly > GY - 95 && ly < GY + 18) { Poke(a, 1f); Award(AnimalSticker(a.kind)); return; }
@@ -322,6 +326,7 @@ namespace BigWheels
         {
             if (paused) return;
             if (!Started) { StartGame(); return; }
+            if (Cockpit) return;
             if (!truck.air)
             {
                 truck.air = true; truck.vh = 760; truck.bobV += 160;

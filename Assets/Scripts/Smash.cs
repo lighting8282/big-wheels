@@ -280,7 +280,7 @@ namespace BigWheels
         void FeedCharge()
         {
             if (turboT > 0 || !Started) return;
-            if (++charge >= pips.Length) { charge = pips.Length; StartTurbo(); }
+            if (++charge >= pips.Length) { charge = pips.Length; if (Cockpit) { nitroReady = true; Sfx.Play("sparkle"); } else StartTurbo(); }
             else Sfx.Blip();
         }
 
@@ -288,6 +288,7 @@ namespace BigWheels
         {
             turboT = TurboSeconds; charge = pips.Length;
             Sfx.Play("turbo"); Award(30); AddShake(8f);
+            if (Cockpit) { AddScorePt(200, .5f, .6f); cFlashT = .6f; return; }
             AddScore(200, worldX + TX, BASE - 220);
             var pp = TruckPt(Def.Puff);
             for (int i = 0; i < 16; i++)

@@ -2,7 +2,18 @@
 
 A rough-and-tough monster truck smash-up for kids around 6, made in Unity. Dusk skies over factories and cranes, rusted trucks, scrap, smoke and sparks. There is a score and a combo multiplier, but no way to fail: nothing ever slows the truck down.
 
-## How to play
+## Two ways to play
+
+- **Side view** (the default): the truck drives itself along the road and you jump over and smash things. Controls below.
+- **Cockpit view** (the wheel button under the gear, or **Tab** / **V**): you are inside the truck looking down a three-lane road, and *you* steer. Smash, flatten and collect the same things as they come at you. The parent corner can set which view the game starts in.
+  - **Steer:** Left / Right or A / D, the left stick on a gamepad, or hold the mouse or a finger to the left or right of the screen.
+  - **Gas and brake:** Up / Down or W / S, or the right and left triggers.
+  - **Nitro:** smashes and flattened cars charge the four flames on the roof panel; when all four are lit the nitro button on the dash flashes. Press **Space** / **Enter** / the A button, or click the button, for turbo. Turbo stays on for about six seconds.
+  - **Wipers:** **Z** / **C** or the X button (they also run by themselves when the glass is dirty). **P** or the Y button changes the paint colour.
+  - Everything in the cab moves: the wheel turns and the gloved hands follow it, the gauges and the gear lever follow your speed, the dice swing, the switches flip, the windshield cracks and fills with mud, and the hood bounces.
+  - Props are still smashed with debris flying back at the windshield, barrels still blow up their neighbours, and launch pads still throw the truck into the air. There is no way to lose and nothing slows you down except the dirt shoulder.
+
+## How to play (side view)
 
 - **Tap anywhere** to jump. Tap again in the air to do a front flip. (Desktop: Space or Up Arrow; **F11** toggles fullscreen.)
 - The truck drives itself. Drive over a **junked car** to flatten it. Each flattened car fills one of the **three slots** at the top, and the third sets off a shower of sparks.
@@ -57,6 +68,7 @@ Everything is generated in code, so there are no art or audio files to manage.
 | `Assets/Scripts/Gritty.cs` | The rough look: it runs after the base art and swaps in dusk skies, skylines, smoke, steel buttons, cogs, sludge, launch pad, tyre stacks, the spiked helmet, skull flag and the mean animals |
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
+| `Assets/Scripts/Cockpit.cs`, `Cab.cs` | The first-person mode: a pseudo-3D road drawn into a texture each frame, scaled sprites coming down it, driving and collisions, and the animated cab with all its parts (a `partial` of `Game`; the cab sprites are in `CabArt`) |
 | `Assets/Scripts/Smash.cs` | Smashable props (crates, bricks, pins, barrels, glass, fence) and their art, flying debris, chain explosions, the four-flame turbo meter and screen shake (a `partial` of `Game`) |
 | `Assets/Scripts/Score.cs`, `Display.cs` | Score, combo and the saved best score (a `partial` of `Game`); fullscreen and window-size options for desktop builds |
 | `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 31 stickers (saved in PlayerPrefs; the bit mask is an int, so keep it at 31 or fewer), their small icons, and the sticker book screen |

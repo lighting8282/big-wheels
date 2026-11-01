@@ -90,6 +90,7 @@ namespace BigWheels
             clips["bat"] = Compose("bat", new Voice(Wave.Sine, 3200, 4600, .05f, .12f), new Voice(Wave.Sine, 4600, 3200, .05f, .12f, .08f), new Voice(Wave.Sine, 3400, 4800, .05f, .12f, .17f), new Voice(Wave.Sine, 4800, 3400, .05f, .1f, .25f));
             clips["tires"] = Compose("tires", new Voice(Wave.Sine, 130, 60, .16f, .4f), new Voice(Wave.Noise, 700, 200, .08f, .3f), new Voice(Wave.Sine, 110, 55, .14f, .35f, .17f), new Voice(Wave.Noise, 700, 200, .06f, .25f, .17f),
                 new Voice(Wave.Sine, 95, 50, .12f, .3f, .33f), new Voice(Wave.Sine, 85, 48, .1f, .25f, .46f));
+            clips["wipe"] = Compose("wipe", new Voice(Wave.Noise, 3200, 1400, .3f, .16f), new Voice(Wave.Noise, 1400, 3200, .3f, .16f, .32f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));

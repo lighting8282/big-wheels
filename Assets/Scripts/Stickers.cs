@@ -74,7 +74,7 @@ namespace BigWheels
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
+        public static Sprite IconWheel, IconGear, IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
 
@@ -101,6 +101,15 @@ namespace BigWheels
                 for (int i = 0; i < 8; i++) shapes[i + 1] = Shapes.RRect(-6, -29, 12, 14, 2.5f, i * 45f);
                 p.Fill(Shapes.Union(shapes), Palette.Hex("#aab3c8"), 3.4f);
                 p.Fill(Shapes.Circle(0, 0, 8), Palette.Hex("#2b303a"), 3.4f);
+            });
+            // steering wheel: a ring with three spokes
+            IconWheel = Art.Make(-32, -32, 32, 32, Vector2.zero, p =>
+            {
+                p.Fill(Shapes.Capsule(-24, 4, 24, 4, 4.4f), Palette.Hex("#aab3c8"), 3);
+                p.Fill(Shapes.Capsule(0, 4, 0, 26, 4.4f), Palette.Hex("#aab3c8"), 3);
+                p.Fill(Shapes.Circle(0, 0, 26), new Color(0, 0, 0, 0), 6.5f, Palette.Hex("#aab3c8"));
+                p.Fill(Shapes.Circle(0, 4, 7), Palette.Hex("#2b303a"), 3, Palette.Hex("#aab3c8"));
+                p.Fill(Shapes.RRect(-4, -30, 8, 8, 2), Palette.Hex("#d33a2c"));
             });
             IconBook = Art.Make(-32, -28, 32, 28, Vector2.zero, p =>
             {

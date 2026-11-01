@@ -6,9 +6,11 @@ using UnityEngine.UI;
 namespace BigWheels
 {
     /// <summary>Full-screen tap catcher: any tap that no button swallows goes to the game (sun, animals, jump).</summary>
-    public class TapCatcher : MonoBehaviour, IPointerDownHandler
+    public class TapCatcher : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
     {
         public void OnPointerDown(PointerEventData e) { Game.I?.Tap(e.position); }
+        public void OnPointerUp(PointerEventData e) { Game.I?.PointerUp(); }
+        public void OnDrag(PointerEventData e) { Game.I?.PointerMove(e.position); }
     }
 
     /// <summary>Picture-only UI: 3 counting slots, truck and costume buttons, 7 colour swatches, sound toggle and a big play button.</summary>
@@ -21,7 +23,7 @@ namespace BigWheels
         readonly Image[] slotBg = new Image[Slots], slotCar = new Image[Slots], swatch = new Image[7];
         readonly Image[] truckBg = new Image[Trucks4], truckIcon = new Image[Trucks4], costumeBg = new Image[Costumes];
         readonly Image sndIcon;
-        readonly RectTransform gearRt, scoreRt;
+        readonly RectTransform gearRt, scoreRt, viewRt;
         readonly Text scoreVal, comboTxt, bestTxt;
         class Pop { public Text t; public RectTransform rt; public float born = -99; }
         readonly Pop[] pops = new Pop[14];
@@ -42,7 +44,7 @@ namespace BigWheels
             var cgo = new GameObject("UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             canvasRt = cgo.GetComponent<RectTransform>();
             var canvas = cgo.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 1f; canvas.sortingOrder = 100;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 1f; canvas.sortingOrder = 5000;
             var cs = cgo.GetComponent<CanvasScaler>();
             cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; cs.referenceResolution = new Vector2(1000, 700); cs.matchWidthOrHeight = .5f;
 
@@ -130,6 +132,13 @@ namespace BigWheels
             gearRt.gameObject.AddComponent<Button>().onClick.AddListener(() => parentUi.Open());
             var gicon = Rt("Icon", gearRt); Anchor(gicon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(48, 48));
             Img(gicon, Art3.IconGear, Color.white).raycastTarget = false;
+
+            // switch between the side view and the first-person cockpit
+            viewRt = Rt("View", safe); Anchor(viewRt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -206), new Vector2(76, 76));
+            Img(viewRt, Art.UiSteel, Color.white);
+            viewRt.gameObject.AddComponent<Button>().onClick.AddListener(game.ToggleView);
+            var vicon = Rt("Icon", viewRt); Anchor(vicon, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(48, 48));
+            Img(vicon, Art3.IconWheel, Color.white).raycastTarget = false;
 
             scoreRt = Rt("Score", safe); Anchor(scoreRt, new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -200), new Vector2(184, 112));
             var sbg = Img(scoreRt, Art3.Card, new Color(.07f, .1f, .22f, .74f)); sbg.type = Image.Type.Sliced; sbg.raycastTarget = false;
@@ -233,6 +242,9 @@ namespace BigWheels
             return t;
         }
 
+        /// <summary>In the cab the paint, truck and costume buttons are hidden: they would sit on top of the dashboard.</summary>
+        public void SetCockpit(bool on) { dockRt.gameObject.SetActive(!on); sideRt.gameObject.SetActive(!on); }
+
         public void Reward(int id) => sticker.Show(id);
         public void OpenParent() => parentUi.Open();
         public void CloseParent() => parentUi.Close();
@@ -261,6 +273,8 @@ namespace BigWheels
             parentUi.Fit(cw, ch);
             gearRt.sizeDelta = new Vector2(sndS, sndS); gearRt.anchoredPosition = new Vector2(18, -(18 + sndS + 10));
             ((RectTransform)gearRt.GetChild(0)).sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
+            viewRt.sizeDelta = new Vector2(sndS, sndS); viewRt.anchoredPosition = new Vector2(18, -(18 + 2 * (sndS + 10)));
+            ((RectTransform)viewRt.GetChild(0)).sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
 
             float top = 18 + sndS + 10;
             float bs = Mathf.Clamp((ch - top - 24 - 7 * 8 - 10) / 7f, 36f, 64f);
@@ -282,7 +296,7 @@ namespace BigWheels
             float left = 18 + sndS + 10, avail = cw / 2 - rowRt.sizeDelta.x / 2 - left - 10;
             float k = Mathf.Clamp(sndS / 84f, .7f, 1f);
             if (avail >= 120f) { scoreRt.anchoredPosition = new Vector2(left, -18); scoreRt.localScale = Vector3.one * Mathf.Min(k, avail / 184f); }
-            else { scoreRt.anchoredPosition = new Vector2(18, -(18 + 2 * sndS + 20)); scoreRt.localScale = Vector3.one * k; }
+            else { scoreRt.anchoredPosition = new Vector2(18, -(18 + 3 * sndS + 30)); scoreRt.localScale = Vector3.one * k; }
         }
 
         static RectTransform Rt(string name, Transform parent)

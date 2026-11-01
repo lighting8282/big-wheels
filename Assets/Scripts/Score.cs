@@ -14,14 +14,17 @@ namespace BigWheels
         int combo; float comboClock;
 
         /// <summary>Adds points (times the multiplier) and floats the amount up from the spot in the world where it happened.</summary>
-        void AddScore(int pts, float wx, float screenY)
+        void AddScore(int pts, float wx, float screenY) => AddScorePt(pts, (wx - worldX) / Wl, 1f - screenY / Hl);
+
+        /// <summary>Same as AddScore, but the popup spot is given as screen fractions (fx from the left, fy from the bottom).</summary>
+        void AddScorePt(int pts, float fx, float fy)
         {
             if (!Started || pts <= 0) return;
             combo++; comboClock = 3f;
             int m = Mult, gain = pts * m;
             Score += gain; ScorePulse = 1f;
             if (Score > Settings.Best) Settings.Best = Score;
-            hud.Popup("+" + gain + (m > 1 ? "  x" + m : ""), (wx - worldX) / Wl, 1f - screenY / Hl, m);
+            hud.Popup("+" + gain + (m > 1 ? "  x" + m : ""), fx, fy, m);
         }
 
         void StepScore(float dt)

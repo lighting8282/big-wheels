@@ -157,6 +157,32 @@ namespace BigWheels.EditorTools
             Step(g, 200);
             int s = 0;
 
+            // first-person cockpit: steering, smashing, a barrel blast, turbo, mud and wipers, then the other worlds
+            Settings.WorldLock = -1;
+            g.SetWorld(0); g.SetCockpit(true); g.DebugDrive(0f, 0f);
+            Step(g, 30); Shot(cam, rt, P("70_cockpit_idle"));
+            g.DebugCSpawn('k', 55, 0f); g.DebugCSpawn('x', 78, 2.1f); g.DebugCSpawn('c', 98, -2.1f); g.DebugCSpawn('b', 36, 0f); g.DebugCSpawn('m', 120, 0f);
+            g.DebugDrive(-1f, .5f);
+            Step(g, 36); Shot(cam, rt, P("71_cockpit_steer_left"));
+            g.DebugDrive(0f, 0f);
+            Step(g, 110); Shot(cam, rt, P("72_cockpit_smash"));
+            Step(g, 14); Shot(cam, rt, P("73_cockpit_smash_after"));
+            g.DebugDrive(1f, 1f);
+            Step(g, 50); Shot(cam, rt, P("74_cockpit_steer_right"));
+            g.DebugDrive(0f, 0f); g.DebugNitro(); g.DebugCSpawn('n', 46, 0f);
+            Step(g, 60); Shot(cam, rt, P("75_cockpit_turbo"));
+            g.DebugCSpawn('j', 28, 0f); g.DebugCSpawn('p', 40, 0f); g.DebugCSpawn('t', 70, 0f); g.DebugCSpawn('g', 86, 0f);
+            Step(g, 80); Shot(cam, rt, P("76_cockpit_mud"));
+            Step(g, 110); Shot(cam, rt, P("77_cockpit_later"));
+            g.SetWorld(1); Step(g, 40); Shot(cam, rt, P("78_cockpit_desert"));
+            g.SetWorld(2); Step(g, 40); Shot(cam, rt, P("79_cockpit_frozen"));
+            g.SetWorld(3); Step(g, 40); Shot(cam, rt, P("7a_cockpit_night"));
+            g.SetWorld(0);
+            Step(g, 60 * 40, f => g.DebugDrive(Mathf.Sin(f * .021f) * 1.1f, Mathf.Sin(f * .007f) * .6f + .2f));
+            Shot(cam, rt, P("7b_cockpit_soak"));
+            Debug.Log($"[BigWheels] {tag}: cockpit objects={g.CockpitObjects} lateral={g.CabX:F2} score={g.Score} (lateral must stay within 5.4)");
+            g.DebugDrive(float.NaN, 0f); g.SetCockpit(false); Step(g, 20);
+
             // parent corner, break screen, and a locked world
             Settings.FlushBest(); Settings.ForgetCache();
             Debug.Log($"[BigWheels] {tag}: final score={g.Score} best after save and reload={Settings.Best} (must be >= score)");
