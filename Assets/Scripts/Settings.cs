@@ -15,7 +15,7 @@ namespace BigWheels
             try
             {
                 volume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolKey, 1f)); engine = PlayerPrefs.GetInt(EngineKey, 1) == 1;
-                world = Mathf.Clamp(PlayerPrefs.GetInt(WorldKey, -1), -1, 2); brk = Mathf.Max(0, PlayerPrefs.GetInt(BreakKey, 0));
+                world = Mathf.Clamp(PlayerPrefs.GetInt(WorldKey, -1), -1, 3); brk = Mathf.Max(0, PlayerPrefs.GetInt(BreakKey, 0));
             }
             catch { }
         }
@@ -32,8 +32,8 @@ namespace BigWheels
         /// <summary>Master volume, 0..1.</summary>
         public static float Volume { get { Load(); return volume; } set { Load(); volume = Mathf.Clamp01(value); Save(); } }
         public static bool EngineOn { get { Load(); return engine; } set { Load(); engine = value; Save(); } }
-        /// <summary>-1 = the world changes by itself, otherwise 0 farm, 1 beach, 2 snow stays put.</summary>
-        public static int WorldLock { get { Load(); return world; } set { Load(); world = Mathf.Clamp(value, -1, 2); Save(); } }
+        /// <summary>-1 = the world changes by itself, otherwise 0 farm, 1 beach, 2 snow, 3 night stays put.</summary>
+        public static int WorldLock { get { Load(); return world; } set { Load(); world = Mathf.Clamp(value, -1, 3); Save(); } }
         /// <summary>Minutes of play before the calm "time for a break" screen. 0 = off.</summary>
         public static int BreakMinutes { get { Load(); return brk; } set { Load(); brk = Mathf.Max(0, value); Save(); } }
 

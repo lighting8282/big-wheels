@@ -8,7 +8,7 @@ namespace BigWheels
     /// </summary>
     public static class Stickers
     {
-        public const int Count = 25;
+        public const int Count = 29;
         const string MaskKey = "bw_stickers", SeenKey = "bw_seen";
         static int mask = -1, seen = -1;
 
@@ -48,7 +48,7 @@ namespace BigWheels
             var truckIdx = new[] { 0, 2, 0, 3 };
             var truckSfx = new[] { "honk", "beep", "siren", "lowhonk" };
             for (int i = 0; i < 4; i++) defs[i] = new Def { Icon = Trucks.All[i].Body[truckIdx[i]], Bg = truckBg, Sfx = truckSfx[i] };
-            var animalSfx = new[] { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho" };
+            var animalSfx = new[] { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho", "hoot", "yip", "huff" };
             for (int k = 0; k < 8; k++) defs[4 + k] = new Def { Icon = Art2.Animal[k], Bg = animalBg, Sfx = animalSfx[k] };
             defs[12] = new Def { Icon = Art3.Barn, Bg = Palette.Hex("#d3f5bd"), Sfx = "swoosh" };
             defs[13] = new Def { Icon = Art3.Wave, Bg = Palette.Hex("#ffeab0"), Sfx = "swoosh" };
@@ -63,15 +63,33 @@ namespace BigWheels
             defs[22] = new Def { Icon = Art.Puddle, Bg = featBg, Sfx = "splash" };
             defs[23] = new Def { Icon = Art2.Hat, Bg = featBg, Sfx = "sparkle" };
             defs[24] = new Def { Icon = Art.SunNormal, Bg = featBg, Sfx = "sparkle" };
+            defs[25] = new Def { Icon = Art3.MoonSky, Bg = Palette.Hex("#c9c9f5"), Sfx = "swoosh" };
+            for (int k = 0; k < 3; k++) defs[26 + k] = new Def { Icon = Art2.Animal[8 + k], Bg = animalBg, Sfx = animalSfx[8 + k] };
         }
     }
 
     /// <summary>Small icons used only by the sticker book.</summary>
     public static class Art3
     {
-        public static Sprite IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye;
+        public static Sprite IconBook, IconClose, Barn, Wave, Flake, Card, Moon, SleepEye, MoonSky, MoonSkyHappy, Beam;
         static bool built;
         static readonly Color T = new Color(0, 0, 0, 0);
+
+        static void DrawMoon(Painter p, bool happy)
+        {
+            var ink = Palette.Ink;
+            p.Fill(Shapes.Circle(0, 0, 48), Palette.Hex("#fff2b0"), 5);
+            var crater = Palette.Hex("#efdc8c");
+            p.Fill(Shapes.Circle(-26, -20, 8), crater); p.Fill(Shapes.Circle(24, -26, 6), crater); p.Fill(Shapes.Circle(28, 22, 9), crater);
+            p.Fill(Shapes.Ellipse(-16, -8, 5, 7), ink); p.Fill(Shapes.Ellipse(16, -8, 5, 7), ink);
+            if (happy)
+            {
+                p.Fill(Shapes.Circle(0, 8, 18), Palette.Hex("#ff6e6e"), 4, null, new Shape(q => 8 - q.y, new Rect(-30, 8, 60, 30)));
+                p.Fill(Shapes.Capsule(-18, 8, 18, 8, 2f), ink);
+            }
+            else p.Fill(Shapes.Arc(0, 6, 18, .2f * Mathf.PI, .8f * Mathf.PI, 2.5f), ink);
+            p.Fill(Shapes.Circle(-28, 8, 6), new Color(1, .5f, .55f, .4f)); p.Fill(Shapes.Circle(28, 8, 6), new Color(1, .5f, .55f, .4f));
+        }
 
         public static void Build()
         {
@@ -95,6 +113,16 @@ namespace BigWheels
                 p.Fill(Shapes.Arc(0, 16, 7, .15f * Mathf.PI, .85f * Mathf.PI, 2.2f), ink);
                 p.Fill(Shapes.Circle(-30, 12, 7), new Color(1, .5f, .55f, .45f)); p.Fill(Shapes.Circle(30, 12, 7), new Color(1, .5f, .55f, .45f));
             });
+            MoonSky = Art.Make(-54, -54, 54, 54, Vector2.zero, p => DrawMoon(p, false));
+            MoonSkyHappy = Art.Make(-54, -54, 54, 54, Vector2.zero, p => DrawMoon(p, true));
+            Beam = Art.Make(0, -70, 300, 70, new Vector2(0, 0), p =>
+                p.SetPixels((x, y) =>
+                {
+                    float lx = (x + .5f) / Painter.Scale, ly = p.Y1 - (y + .5f) / Painter.Scale;
+                    float halfH = 8f + lx * .22f, d = Mathf.Abs(ly) - halfH;
+                    float a = Mathf.Pow(Mathf.Clamp01(1f - lx / 300f), 1.3f) * .42f * Mathf.Clamp01(-d / 12f);
+                    return new Color(1f, .95f, .6f, a);
+                }));
             SleepEye = Art.Make(-22, -14, 22, 14, Vector2.zero, p => p.Fill(Shapes.Arc(0, -5, 13, .15f * Mathf.PI, .85f * Mathf.PI, 2.8f), ink));
             IconClose = Art.Make(-22, -22, 22, 22, Vector2.zero, p =>
             {

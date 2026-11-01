@@ -5,10 +5,10 @@ namespace BigWheels
     /// <summary>Second batch of procedural sprites: animals, new obstacles, the beach world, costumes and UI icons.</summary>
     public static class Art2
     {
-        public const int Cow = 0, Sheep = 1, Duck = 2, Crab = 3, Gull = 4, Penguin = 5, Bear = 6, Snowman = 7;
-        public static Sprite[] Animal = new Sprite[8], Jelly = new Sprite[4];
+        public const int Cow = 0, Sheep = 1, Duck = 2, Crab = 3, Gull = 4, Penguin = 5, Bear = 6, Snowman = 7, Owl = 8, Fox = 9, Hedgehog = 10;
+        public static Sprite[] Animal = new Sprite[11], Jelly = new Sprite[4];
         public static Sprite Trampoline, StreamWater, Hat, FlagPole, FlagCloth, IconEyes, IconFlag, UiRingSel;
-        public static Sprite SkyBeach, HillSea, HillDunes, SkySnow, HillMountains, HillSnow;
+        public static Sprite SkyBeach, HillSea, HillDunes, SkySnow, HillMountains, HillSnow, SkyNight, HillNightFar, HillNightNear;
         static bool built;
 
         // Jelly flavours reuse the truck palette: pink, green, purple, orange
@@ -212,6 +212,54 @@ namespace BigWheels
                 p.Fill(Shapes.Circle(-4, -79, 1.7f), ink); p.Fill(Shapes.Circle(4, -79, 1.7f), ink);
                 p.Fill(Shapes.Poly(0, -77, 13, -74, 0, -72), Palette.Hex("#ff9a1f"), 2);
                 p.Fill(Shapes.Circle(0, -54, 2), ink); p.Fill(Shapes.Circle(0, -46, 2), ink); p.Fill(Shapes.Circle(0, -26, 2), ink);
+            });
+
+            SkyNight = Art.Make(0, 0, 4, 64, Vector2.zero, p =>
+                p.SetPixels((x, y) => Color.Lerp(Palette.Hex("#2f2f78"), Palette.Hex("#0a0e30"), (y + .5f) / p.H)));
+            HillNightFar = Art.MakeHill(Art.HillFarPeriod, Art.HillFarWl, 130f, 56f, Palette.Hex("#2e3578"));
+            HillNightNear = Art.MakeHill(Art.HillNearPeriod, Art.HillNearWl, 80f, 12f, Palette.Hex("#232a63"));
+
+            Animal[Owl] = Art.Make(-38, -80, 38, 4, Vector2.zero, p =>
+            {
+                var brown = Palette.Hex("#8b6b4a"); var cream = Palette.Hex("#f1dfbf"); var orange = Palette.Hex("#ff9a1f");
+                p.Fill(Shapes.Capsule(-8, -10, -8, -1, 2.5f), orange, 2); p.Fill(Shapes.Capsule(8, -10, 8, -1, 2.5f), orange, 2);
+                p.Fill(Shapes.Ellipse(-25, -34, 7, 16), Palette.Shade(brown, -.2f), 3); p.Fill(Shapes.Ellipse(25, -34, 7, 16), Palette.Shade(brown, -.2f), 3);
+                p.Fill(Shapes.Poly(-20, -56, -13, -73, -5, -58), brown, 3); p.Fill(Shapes.Poly(5, -58, 13, -73, 20, -56), brown, 3);
+                p.Fill(Shapes.Ellipse(0, -36, 26, 32), brown, 4);
+                p.Fill(Shapes.Ellipse(0, -26, 16, 21), cream);
+                p.Fill(Shapes.Circle(-11, -48, 11), Color.white, 3); p.Fill(Shapes.Circle(11, -48, 11), Color.white, 3);
+                p.Fill(Shapes.Circle(-10, -48, 5.5f), Palette.Sun); p.Fill(Shapes.Circle(12, -48, 5.5f), Palette.Sun);
+                p.Fill(Shapes.Circle(-10, -48, 3), ink); p.Fill(Shapes.Circle(12, -48, 3), ink);
+                p.Fill(Shapes.Poly(-4, -42, 4, -42, 0, -34), orange, 2.5f);
+            });
+            Animal[Fox] = Art.Make(-76, -86, 82, 4, Vector2.zero, p =>
+            {
+                var orange = Palette.Hex("#ff8a2b"); var cream = Palette.Hex("#fff0dc"); var dark = Palette.Hex("#4a3a35");
+                p.Fill(Shapes.Ellipse(-52, -38, 22, 11), orange, 4); p.Fill(Shapes.Circle(-68, -38, 8.5f), Color.white, 3);
+                foreach (float x in new[] { -30f, -16f, 22f, 36f }) p.Fill(Shapes.Capsule(x, -24, x, -3, 4.5f), dark, 3);
+                p.Fill(Shapes.RRect(-44, -54, 88, 34, 16), orange, 4);
+                p.Fill(Shapes.Ellipse(8, -26, 26, 7), cream);
+                p.Fill(Shapes.Poly(44, -62, 47, -84, 60, -66), orange, 3); p.Fill(Shapes.Poly(60, -64, 70, -82, 72, -58), orange, 3);
+                p.Fill(Shapes.Circle(58, -48, 17), orange, 4);
+                p.Fill(Shapes.Ellipse(72, -43, 12, 8), cream, 3);
+                p.Fill(Shapes.Circle(81, -45, 3.2f), ink);
+                p.Fill(Shapes.Circle(60, -52, 3), ink); p.Fill(Shapes.Circle(61, -53, 1f), Color.white);
+            });
+            Animal[Hedgehog] = Art.Make(-48, -60, 56, 4, Vector2.zero, p =>
+            {
+                var spine = Palette.Hex("#6b4a35"); var peach = Palette.Hex("#f3c9a0");
+                p.Fill(Shapes.Ellipse(-14, -3, 8, 4), peach, 2.5f); p.Fill(Shapes.Ellipse(14, -3, 8, 4), peach, 2.5f);
+                for (int i = 0; i < 9; i++)
+                {
+                    float a = Mathf.PI * (1.0f + i / 8f);
+                    Vector2 E(float ang, float k) => new Vector2(-4 + 33 * k * Mathf.Cos(ang), -24 + 24 * k * Mathf.Sin(ang));
+                    Vector2 b1 = E(a - .2f, 1f), b2 = E(a + .2f, 1f), tip = E(a, 1.4f);
+                    p.Fill(Shapes.Poly(b1.x, b1.y, tip.x, tip.y, b2.x, b2.y), spine, 2.5f);
+                }
+                p.Fill(Shapes.Ellipse(-4, -24, 33, 24), spine, 4);
+                p.Fill(Shapes.Ellipse(32, -17, 17, 13), peach, 3.5f);
+                p.Fill(Shapes.Circle(47, -17, 4.2f), ink);
+                p.Fill(Shapes.Circle(36, -23, 2.8f), ink); p.Fill(Shapes.Circle(37, -24, 1f), Color.white);
             });
         }
     }

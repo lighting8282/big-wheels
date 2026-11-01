@@ -101,6 +101,14 @@ namespace BigWheels.EditorTools
             Step(g, 70);
             Shot(cam, rt, P("23_snow_jump"));
 
+            // night world: stars, moon, fireflies, headlight beam, night animals
+            g.SetWorld(3); g.DebugAnimal(8, 260); g.DebugAnimal(9, 470); g.DebugAnimal(10, 700);
+            Step(g, 110);
+            Shot(cam, rt, P("24_night"));
+            g.Tap(new Vector2(w * .5f, h * .5f));
+            Step(g, 70);
+            Shot(cam, rt, P("25_night_jump"));
+
             // farm world: animals, then each new obstacle on its own
             g.SetWorld(0); g.DebugAnimal(0, 250); g.DebugAnimal(1, 520); g.DebugAnimal(2, 760);
             Step(g, 200);
@@ -133,7 +141,7 @@ namespace BigWheels.EditorTools
             Settings.WorldLock = -1; Settings.Volume = 1f;
 
             // long random-ish session, cycling trucks and worlds, to shake out exceptions
-            Step(g, 60 * 160, f =>
+            Step(g, 60 * 240, f =>
             {
                 if (f % 100 == 20) g.Act();
                 if (f % 100 == 55) g.Act();

@@ -22,7 +22,9 @@ namespace BigWheels
         const float Gravity = 1900f, Speed = 250f, Tau = Mathf.PI * 2f;
         public const int SlotCount = 3;
         const float WorldSeconds = 75f;
-        static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho" };
+        static readonly string[] AnimalSfx = { "moo", "baa", "quack", "crab", "squawk", "peng", "roar", "hoho", "hoot", "yip", "huff" };
+        static int WorldSticker(int w) => w == 3 ? 25 : 12 + w;
+        static int AnimalSticker(int kind) => kind < 8 ? 4 + kind : 26 + (kind - 8);
 
         // ---------- layout (logical px) ----------
         public Vector2 ScreenOverride;                 // set by tests; zero = use the real screen
@@ -67,7 +69,12 @@ namespace BigWheels
             hud.Reward(id); Sfx.Play("tada"); Sfx.Say("yay", false);
             Stars(worldX + Wl * .5f, Hl * .35f, 16, new[] { Palette.Sun, Color.white, Palette.Hex("#ff6eb4") }, 360);
         }
-        float worldTimer, wipeT, sunBounce, digT, lidT, sprayT, sirenCd, snowFade;
+        float worldTimer, wipeT, sunBounce, digT, lidT, sprayT, sirenCd, snowFade, nightFade;
+        bool wipeDark;
+        const int NStars = 44, NFlies = 22;
+        readonly float[] starX = new float[NStars], starY = new float[NStars], starP = new float[NStars], flyX = new float[NFlies], flyY = new float[NFlies], flyP = new float[NFlies];
+        SpriteRenderer nightVeil, beam;
+        Pool skyStars, flyGlow, flyCore;
         const int Flakes = 70;
         readonly float[] flakeX = new float[Flakes], flakeY = new float[Flakes], flakeS = new float[Flakes];
         bool wipeApplied, digDumped;
@@ -88,7 +95,7 @@ namespace BigWheels
         }
         class Animal { public int kind; public float x, hopT; public bool cheered; public SpriteRenderer sr; }
         class Part { public int kind; public float x, y, vx, vy, g, r, rot, vr, life, max; public Color col; }
-        class Theme { public Sprite sky, hillFar, hillNear; public Color grass, dirt, dirtLt, dirtDk, bg; public bool shells, pines; }
+        class Theme { public Sprite sky, hillFar, hillNear, sun, sunHappy; public Color grass, dirt, dirtLt, dirtDk, bg, cloud = Color.white; public bool shells, pines, glow, rays = true; }
         readonly Truck truck = new();
         TruckDef Def => Trucks.All[TruckType];
         public float TruckHeight => truck.h;
@@ -141,11 +148,14 @@ namespace BigWheels
 
             themes = new[]
             {
-                new Theme { sky = Art.Sky, hillFar = Art.HillFar, hillNear = Art.HillNear, grass = Palette.Grass, dirt = Palette.Dirt, dirtLt = Palette.DirtLt, dirtDk = Palette.DirtDk, bg = Palette.Sky2 },
-                new Theme { sky = Art2.SkyBeach, hillFar = Art2.HillSea, hillNear = Art2.HillDunes, grass = Palette.Hex("#f6dfa0"), dirt = Palette.Hex("#e6bd7a"),
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art.Sky, hillFar = Art.HillFar, hillNear = Art.HillNear, grass = Palette.Grass, dirt = Palette.Dirt, dirtLt = Palette.DirtLt, dirtDk = Palette.DirtDk, bg = Palette.Sky2 },
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkyBeach, hillFar = Art2.HillSea, hillNear = Art2.HillDunes, grass = Palette.Hex("#f6dfa0"), dirt = Palette.Hex("#e6bd7a"),
                             dirtLt = Palette.Hex("#f3d596"), dirtDk = Palette.Hex("#c99a55"), bg = Palette.Hex("#fff1c9"), shells = true },
-                new Theme { sky = Art2.SkySnow, hillFar = Art2.HillMountains, hillNear = Art2.HillSnow, grass = Palette.Hex("#f4f9ff"), dirt = Palette.Hex("#dbe9f5"),
-                            dirtLt = Palette.Hex("#eef6fc"), dirtDk = Palette.Hex("#b9d0e6"), bg = Palette.Hex("#eef6fc"), pines = true }
+                new Theme { sun = Art.SunNormal, sunHappy = Art.SunHappy, sky = Art2.SkySnow, hillFar = Art2.HillMountains, hillNear = Art2.HillSnow, grass = Palette.Hex("#f4f9ff"), dirt = Palette.Hex("#dbe9f5"),
+                            dirtLt = Palette.Hex("#eef6fc"), dirtDk = Palette.Hex("#b9d0e6"), bg = Palette.Hex("#eef6fc"), pines = true },
+                new Theme { sun = Art3.MoonSky, sunHappy = Art3.MoonSkyHappy, sky = Art2.SkyNight, hillFar = Art2.HillNightFar, hillNear = Art2.HillNightNear,
+                            grass = Palette.Hex("#1f3a55"), dirt = Palette.Hex("#3a3560"), dirtLt = Palette.Hex("#4b4580"), dirtDk = Palette.Hex("#2b2750"),
+                            bg = Palette.Hex("#0a0e30"), cloud = new Color(.30f, .33f, .6f, 1f), glow = true, rays = false }
             };
 
             worldRoot = new GameObject("World").transform;
@@ -158,10 +168,13 @@ namespace BigWheels
             pDot = new Pool(this, Art.Dot, 20, worldRoot); pStar = new Pool(this, Art.Star, 21, worldRoot);
             pSq = new Pool(this, Art.Square, 22, worldRoot); pBubble = new Pool(this, Art.Bubble, 23, worldRoot);
 
+            skyStars = new Pool(this, Art.Star, -95, worldRoot); flyGlow = new Pool(this, Art.Dot, 41, worldRoot); flyCore = new Pool(this, Art.Dot, 42, worldRoot);
             hud = new Hud(this, cam);
 
             spawnX = worldX + TX + 520; animalX = worldX + TX + 350;
             for (int i = 0; i < Flakes; i++) { flakeX[i] = Random.value; flakeY[i] = Random.value; flakeS[i] = Random.value; }
+            for (int i = 0; i < NStars; i++) { starX[i] = Random.value; starY[i] = Random.Range(.02f, .6f); starP[i] = Random.Range(0f, 6.3f); }
+            for (int i = 0; i < NFlies; i++) { flyX[i] = Random.value; flyY[i] = Random.Range(.45f, .95f); flyP[i] = Random.Range(0f, 6.3f); }
             ApplyTheme(Settings.WorldLock >= 0 ? Settings.WorldLock : 0);
             ComputeLayout();
             Render();
@@ -181,12 +194,13 @@ namespace BigWheels
             dirt = MakeSR("Dirt", Art.White, -56);
             dirtEdge = MakeSR("DirtEdge", Art.White, -55);
             shadow = MakeSR("Shadow", Art.Shadow, -10);
+            nightVeil = MakeSR("NightVeil", Art.White, 40); nightVeil.color = new Color(.04f, .06f, .23f, 0);
             wipe = MakeSR("Wipe", Art.White, 50); wipe.color = new Color(1, 1, 1, 0);
         }
 
         void ApplyTheme(int w)
         {
-            World = w; var th = themes[w]; Award(12 + w);
+            World = w; var th = themes[w]; Award(WorldSticker(w));
             sky.sprite = th.sky; cam.backgroundColor = th.bg;
             for (int i = 0; i < 2; i++) { hillFar[i].sprite = th.hillFar; hillNear[i].sprite = th.hillNear; }
             grass.color = th.grass; dirt.color = th.dirt; dirtEdge.color = th.dirtDk;
@@ -216,6 +230,7 @@ namespace BigWheels
                 beacon = MakeSR("Beacon", Art.Dot, 4, bodyT);
                 beacon.transform.localPosition = new Vector3(d.Beacon.x / 100f, -d.Beacon.y / 100f, 0); beacon.transform.localScale = Vector3.one * .17f;
             }
+            beam = MakeSR("Beam", Art3.Beam, 41, bodyT); beam.transform.localPosition = new Vector3(d.Headlight.x / 100f, -d.Headlight.y / 100f, 0);
             hat = MakeSR("Hat", Art2.Hat, 6, bodyT); hat.transform.localPosition = new Vector3(d.Hat.x / 100f, -d.Hat.y / 100f, 0);
             pole = MakeSR("Pole", Art2.FlagPole, 6, bodyT); pole.transform.localPosition = new Vector3(d.Flag.x / 100f, -d.Flag.y / 100f, 0);
             cloth = MakeSR("Cloth", Art2.FlagCloth, 6, bodyT); cloth.transform.localPosition = new Vector3(d.Flag.x / 100f, -d.Flag.y / 100f + .72f, 0);
@@ -283,7 +298,7 @@ namespace BigWheels
             float lx = px.x / S, ly = (H - px.y) / S;
             if ((new Vector2(lx, ly) - SunPos).sqrMagnitude < 75f * 75f) { SunTap(); return; }
             foreach (var a in animals)
-                if (Mathf.Abs(lx - (a.x - worldX)) < 62 && ly > GY - 95 && ly < GY + 18) { Poke(a, 1f); Award(4 + a.kind); return; }
+                if (Mathf.Abs(lx - (a.x - worldX)) < 62 && ly > GY - 95 && ly < GY + 18) { Poke(a, 1f); Award(AnimalSticker(a.kind)); return; }
             Act();
         }
 
@@ -293,7 +308,7 @@ namespace BigWheels
             if (wipeT <= 0 && Settings.WorldLock < 0) StartWipe();
         }
 
-        void StartWipe() { wipeT = .0001f; wipeApplied = false; worldTimer = 0; Sfx.Play("swoosh"); }
+        void StartWipe() { wipeT = .0001f; wipeApplied = false; worldTimer = 0; wipeDark = World == 3 || (World + 1) % themes.Length == 3; Sfx.Play("swoosh"); }
 
         public void Act()
         {
@@ -339,7 +354,7 @@ namespace BigWheels
             Started = true; Sfx.StartEngine();
             Slots = 0; Celeb = 0; System.Array.Clear(SlotPop, 0, SlotCount);
             Horn(); Sfx.Play("boing");
-            Award(TruckType); Award(12 + World);
+            Award(TruckType); Award(WorldSticker(World));
         }
 
         public void SetColor(int i)
@@ -509,7 +524,7 @@ namespace BigWheels
 
         void SpawnAnimal(float x, int kind = -1)
         {
-            if (kind < 0) kind = World == 0 ? Random.Range(0, 3) : World == 1 ? Random.Range(3, 5) : Random.Range(5, 8);
+            if (kind < 0) kind = World == 0 ? Random.Range(0, 3) : World == 1 ? Random.Range(3, 5) : World == 2 ? Random.Range(5, 8) : Random.Range(8, 11);
             var a = new Animal { kind = kind, x = x, sr = MakeSR("Animal", Art2.Animal[kind], -45) };
             animals.Add(a);
         }
@@ -581,6 +596,14 @@ namespace BigWheels
             for (int i = 0; i < SlotCount; i++) if (SlotPop[i] > 0) SlotPop[i] = Mathf.Max(0, SlotPop[i] - dt * 2.2f);
             if (sunBounce > 0) sunBounce = Mathf.Max(0, sunBounce - dt * 1.6f);
             snowFade += ((World == 2 ? 1f : 0f) - snowFade) * Mathf.Min(1f, dt * 2f);
+            nightFade += ((World == 3 ? 1f : 0f) - nightFade) * Mathf.Min(1f, dt * 2f);
+            for (int i = 0; i < NFlies; i++)
+            {
+                flyX[i] += Mathf.Sin(t * .7f + flyP[i] * 1.7f) * 22f * dt / Wl - 6f * dt / Wl;
+                flyY[i] += Mathf.Cos(t * .9f + flyP[i] * 2.3f) * 16f * dt / Hl;
+                if (flyX[i] < 0f) flyX[i] += 1f; if (flyX[i] > 1f) flyX[i] -= 1f;
+                flyY[i] = Mathf.Clamp(flyY[i], .4f, .97f);
+            }
             for (int i = 0; i < Flakes; i++)
             {
                 flakeY[i] += (45f + flakeS[i] * 70f) * dt / Hl;
@@ -794,14 +817,14 @@ namespace BigWheels
 
             float big = (1 + .22f * Mathf.Min(1, Celeb) * (1 + Mathf.Sin(t * 12) * .2f)) * (1 + .25f * Mathf.Sin(sunBounce * Mathf.PI));
             Vector3 sp = U(SunPos.x, SunPos.y);
-            sun.transform.position = sp; sun.transform.localScale = Vector3.one * big; sun.sprite = (Celeb > 0 || sunBounce > 0) ? Art.SunHappy : Art.SunNormal;
+            sun.transform.position = sp; sun.transform.localScale = Vector3.one * big; sun.sprite = (Celeb > 0 || sunBounce > 0) ? th.sunHappy : th.sun; sunRays.enabled = th.rays;
             sunRays.transform.position = sp; sunRays.transform.localScale = Vector3.one * big; sunRays.transform.rotation = Quaternion.Euler(0, 0, -t * .2f * Mathf.Rad2Deg);
             float span = Wl + 400;
             for (int i = 0; i < clouds.Length; i++)
             {
                 float x = (((cloudX[i] - worldX * .06f - t * 6) % span) + span) % span - 200;
                 clouds[i].transform.position = U(x, Mathf.Max(40, GY * cloudY[i] + 40));
-                clouds[i].transform.localScale = Vector3.one * cloudS[i];
+                clouds[i].transform.localScale = Vector3.one * cloudS[i]; clouds[i].color = Color.Lerp(Color.white, themes[3].cloud, nightFade);
             }
 
             Hill(hillFar, Art.HillFarPeriod, .12f, GY - 24);
@@ -812,13 +835,40 @@ namespace BigWheels
             Quad(dirtEdge, 0, GY, Wl + 2, GY + 6);
             DrawGroundDetail(th);
 
+            RenderNight();
             foreach (var a in animals) RenderAnimal(a);
             foreach (var o in objs) RenderObj(o);
             RenderTruck();
             RenderParts();
 
             float wa = wipeT > 0 ? Mathf.Sin(Mathf.PI * Mathf.Clamp01(wipeT)) : 0f;
-            Quad(wipe, 0, 0, Wl + 2, Hl + 2); wipe.color = new Color(1, 1, 1, wa); wipe.enabled = wa > .001f;
+            Quad(wipe, 0, 0, Wl + 2, Hl + 2); wipe.color = wipeDark ? new Color(.05f, .07f, .2f, wa) : new Color(1, 1, 1, wa); wipe.enabled = wa > .001f;
+        }
+
+        /// <summary>Stars, a dark veil over the world, fireflies and the truck's headlight beam; all fade with nightFade.</summary>
+        void RenderNight()
+        {
+            skyStars.Begin(); flyGlow.Begin(); flyCore.Begin();
+            bool on = nightFade > .01f;
+            if (on)
+            {
+                for (int i = 0; i < NStars; i++)
+                {
+                    var r = skyStars.Next(); float tw = .55f + .45f * Mathf.Sin(t * 2.2f + starP[i]), sz = 5f + 6f * Hash(i + 11);
+                    r.transform.position = U(starX[i] * Wl, starY[i] * GY); r.transform.rotation = Quaternion.Euler(0, 0, -t * 10f - starP[i] * 20f);
+                    r.transform.localScale = Vector3.one * (sz * (.8f + .3f * tw) / 50f); r.color = new Color(1f, .96f, .75f, tw * nightFade);
+                }
+                for (int i = 0; i < NFlies; i++)
+                {
+                    float a = (.5f + .5f * Mathf.Sin(t * 2f + flyP[i] * 3f)) * nightFade;
+                    Vector3 pos = U(flyX[i] * Wl, flyY[i] * Hl);
+                    var g = flyGlow.Next(); g.transform.position = pos; g.transform.localScale = Vector3.one * .26f; g.color = new Color(.9f, 1f, .4f, .22f * a);
+                    var c = flyCore.Next(); c.transform.position = pos; c.transform.localScale = Vector3.one * .07f; c.color = new Color(1f, 1f, .7f, a);
+                }
+            }
+            skyStars.End(); flyGlow.End(); flyCore.End();
+            nightVeil.enabled = on; if (on) { Quad(nightVeil, 0, 0, Wl + 2, Hl + 2); nightVeil.color = new Color(.04f, .06f, .23f, .26f * nightFade); }
+            beam.enabled = on; if (on) beam.color = new Color(1f, 1f, 1f, nightFade);
         }
 
         void Hill(SpriteRenderer[] pair, float period, float par, float baseY)
@@ -837,7 +887,7 @@ namespace BigWheels
                 float h = Hash(k), x = k * 110 + h * 60 - worldX, y = GY - 16 + Hash(k + 7) * 8;
                 if (th.shells)
                 {
-                    Dot(petals.Next(), x, y - 3, 7, 5, shellCols[Mathf.FloorToInt(Hash(k + 3) * shellCols.Length)]);
+                    Dot(petals.Next(), x, y - 3, 7, 5, shellCols[Idx(Hash(k + 3), shellCols.Length)]);
                     Dot(centers.Next(), x, y - 3, 2.4f, 1.8f, new Color(1, 1, 1, .8f));
                     continue;
                 }
@@ -848,7 +898,15 @@ namespace BigWheels
                     Dot(centers.Next(), x, y - 28, 5.5f, 4f, new Color(1, 1, 1, .95f));
                     continue;
                 }
-                var col = Palette.Truck[Mathf.FloorToInt(Hash(k + 3) * Palette.Truck.Length)];
+                if (th.glow)
+                {
+                    var nc = new[] { Palette.Hex("#7df9ff"), Palette.Hex("#ff9fe5"), Palette.Hex("#fff27a"), Palette.Hex("#b6ff8a") };
+                    var gs = stems.Next(); Quad(gs, x - 1.5f, y - 12, x + 1.5f, y); gs.color = Palette.Hex("#1f6a4a");
+                    Dot(petals.Next(), x, y - 15, 6.5f, 6.5f, nc[Idx(Hash(k + 3), nc.Length)]);
+                    Dot(centers.Next(), x, y - 15, 2.6f, 2.6f, Color.white);
+                    continue;
+                }
+                var col = Palette.Truck[Idx(Hash(k + 3), Palette.Truck.Length)];
                 var st = stems.Next(); Quad(st, x - 1.5f, y - 12, x + 1.5f, y); st.color = Palette.Hex("#2f8f45");
                 Dot(petals.Next(), x, y - 15, 6, 6, col);
                 Dot(centers.Next(), x, y - 15, 2.4f, 2.4f, Color.white);
@@ -863,6 +921,8 @@ namespace BigWheels
             stems.End(); petals.End(); centers.End(); pebbles.End();
         }
 
+        /// <summary>Hash value in [0,1] to an array index that can never run off the end.</summary>
+        static int Idx(float h, int len) => Mathf.Clamp(Mathf.FloorToInt(h * len), 0, len - 1);
         static float Hash(float k) { float x = Mathf.Sin(k * 127.1f + 311.7f) * 43758.5453f; return x - Mathf.Floor(x); }
 
         void RenderAnimal(Animal a)

@@ -37,7 +37,7 @@ namespace BigWheels
     public class ParentUi
     {
         static readonly int[] BreakChoices = { 0, 10, 20, 30 };
-        static readonly string[] WorldNames = { "Auto", "Farm", "Beach", "Snow" };
+        static readonly string[] WorldNames = { "Auto", "Farm", "Beach", "Snow", "Night" };
         static Font font;
         static Font F => font != null ? font : (font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
 
@@ -85,7 +85,7 @@ namespace BigWheels
             }, out engineLbl);
             MakeButton(card, "", Palette.Hex("#d3f5bd"), () =>
             {
-                Settings.WorldLock = Settings.WorldLock >= 2 ? -1 : Settings.WorldLock + 1; game.SetWorldLock(Settings.WorldLock); Refresh();
+                Settings.WorldLock = Settings.WorldLock >= 3 ? -1 : Settings.WorldLock + 1; game.SetWorldLock(Settings.WorldLock); Refresh();
             }, out worldLbl);
             MakeButton(card, "", Palette.Hex("#ffeab0"), () =>
             {

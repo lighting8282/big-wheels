@@ -10,7 +10,7 @@ namespace BigWheels
         public float PivotY, WheelR, Height, HalfW, EyeScale;
         public float[] WheelX;
         public Vector2[] Eyes;
-        public Vector2 Puff, Hat, Flag, Joint, Nozzle, Hinge, Mouth, Beacon, MudMin, MudMax;
+        public Vector2 Puff, Hat, Flag, Joint, Nozzle, Hinge, Mouth, Beacon, Headlight, MudMin, MudMax;
     }
 
     public static class Trucks
@@ -29,7 +29,7 @@ namespace BigWheels
             {
                 Name = "monster", Body = Art.Body, PivotY = 90, WheelR = 46, WheelX = new[] { -78f, 78f }, EyeScale = 1f,
                 Eyes = new[] { new Vector2(-26, -160), new Vector2(12, -160) }, Height = 195, HalfW = 105,
-                Puff = new Vector2(-98, -195), Hat = new Vector2(-9, -194), Flag = new Vector2(-100, -196),
+                Headlight = new Vector2(106, -118), Puff = new Vector2(-98, -195), Hat = new Vector2(-9, -194), Flag = new Vector2(-100, -196),
                 MudMin = new Vector2(-100, -190), MudMax = new Vector2(100, -78)
             };
 
@@ -64,7 +64,7 @@ namespace BigWheels
             {
                 Name = "digger", Body = digBody, Arm = digArm, PivotY = 70, WheelR = 30, WheelX = new[] { -62f, 62f }, EyeScale = 11f / 17f,
                 Eyes = new[] { new Vector2(-34, -122), new Vector2(-10, -122) }, Height = 160, HalfW = 105,
-                Joint = new Vector2(62, -100), Hat = new Vector2(-22, -152), Flag = new Vector2(-90, -112), Puff = new Vector2(-96, -100),
+                Headlight = new Vector2(96, -78), Joint = new Vector2(62, -100), Hat = new Vector2(-22, -152), Flag = new Vector2(-90, -112), Puff = new Vector2(-96, -100),
                 MudMin = new Vector2(-90, -92), MudMax = new Vector2(90, -56)
             };
 
@@ -99,7 +99,7 @@ namespace BigWheels
             {
                 Name = "fire", Body = fireBody, PivotY = 75, WheelR = 34, WheelX = new[] { -82f, 78f }, EyeScale = 10f / 17f,
                 Eyes = new[] { new Vector2(77, -125), new Vector2(97, -125) }, Height = 165, HalfW = 125,
-                Nozzle = new Vector2(54, -127), Beacon = new Vector2(100, -164), Hat = new Vector2(70, -148), Flag = new Vector2(-118, -112),
+                Nozzle = new Vector2(54, -127), Headlight = new Vector2(126, -64), Beacon = new Vector2(100, -164), Hat = new Vector2(70, -148), Flag = new Vector2(-118, -112),
                 Puff = new Vector2(-124, -60), MudMin = new Vector2(-110, -96), MudMax = new Vector2(40, -52)
             };
 
@@ -127,7 +127,7 @@ namespace BigWheels
             {
                 Name = "garbage", Body = garBody, Lid = garLid, PivotY = 70, WheelR = 32, WheelX = new[] { -78f, 78f }, EyeScale = 10f / 17f,
                 Eyes = new[] { new Vector2(62, -95), new Vector2(84, -95) }, Height = 140, HalfW = 125,
-                Hinge = new Vector2(-118, -130), Mouth = new Vector2(-100, -136), Hat = new Vector2(78, -118), Flag = new Vector2(-20, -130),
+                Hinge = new Vector2(-118, -130), Mouth = new Vector2(-100, -136), Headlight = new Vector2(119, -58), Hat = new Vector2(78, -118), Flag = new Vector2(-20, -130),
                 Puff = new Vector2(-124, -60), MudMin = new Vector2(-110, -122), MudMax = new Vector2(20, -50)
             };
 

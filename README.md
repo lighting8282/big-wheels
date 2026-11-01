@@ -8,9 +8,10 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 - The truck drives itself. Drive over a **car** to flatten it. Each flattened car fills one of the **three slots** at the top, and the third sets off confetti.
 - **Ramps and trampolines** launch the truck into a backflip, with balloons to pop in the air.
 - **Jelly piles** splat in bright colors and stick to the truck. **Mud puddles** do the same in brown. The **stream** (with ducks) and the **car wash** clean the truck off.
-- **Animals** wait by the road and cheer as the truck passes. Tap one to hear it. Farm: cow, sheep, duck. Beach: crab, seagull. Snow: penguin, polar bear, snowman.
-- **Tap the sun** to change the world. It also changes by itself about every 75 seconds (farm, beach, snow).
-- **Sticker book:** the first time you discover something (each truck, each animal you tap, each world, and ten things to try), a sticker pops up and flies to the book button in the top-left corner. Tap the book to see all 25 slots. Grey silhouettes are still to find, and tapping an earned one plays its sound. Stickers are saved between sessions.
+- **Animals** wait by the road and cheer as the truck passes. Tap one to hear it. Farm: cow, sheep, duck. Beach: crab, seagull. Snow: penguin, polar bear, snowman. Night: owl, fox, hedgehog.
+- **Night world:** a starry sky with a smiling moon, glowing flowers, drifting fireflies, and the truck turns on its headlight beam.
+- **Tap the sun** to change the world. It also changes by itself about every 75 seconds (farm, beach, snow, night).
+- **Sticker book:** the first time you discover something (each truck, each animal you tap, each world, and ten things to try), a sticker pops up and flies to the book button in the top-left corner. Tap the book to see all 29 slots. Grey silhouettes are still to find, and tapping an earned one plays its sound. Stickers are saved between sessions.
 
 ### Picture buttons
 
@@ -29,7 +30,7 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 
 - **Volume:** master volume slider.
 - **Engine hum:** on or off.
-- **World:** Auto (changes by itself and when the sun is tapped), or lock to Farm, Beach or Snow.
+- **World:** Auto (changes by itself and when the sun is tapped), or lock to Farm, Beach, Snow or Night.
 - **Break reminder:** off, or after 10, 20 or 30 minutes of play the screen turns into a calm night scene with a sleeping truck. A parent holds the green button for 2 seconds to keep playing.
 - **Reset sticker book:** tap twice to confirm.
 
@@ -47,10 +48,10 @@ Everything is generated in code, so there are no art or audio files to manage.
 |---|---|
 | `Assets/Scripts/Game.cs` | Game logic, spawning, truck physics, worlds, animals and scene setup |
 | `Assets/Scripts/Trucks.cs` | The four truck types: sprites, wheel sizes and anchor points for costumes and special parts |
-| `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach and snow worlds, costumes) |
+| `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach, snow and night worlds, costumes) |
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
-| `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 25 stickers (saved in PlayerPrefs), their small icons, and the sticker book screen |
+| `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 29 stickers (saved in PlayerPrefs), their small icons, and the sticker book screen |
 | `Assets/Scripts/Settings.cs`, `ParentUi.cs` | Saved parent settings, the hold-to-open button, the parent corner card and the break screen |
 | `Assets/Scripts/Editor/BigWheelsEditor.cs` | Project setup and a headless smoke test |
 
@@ -62,7 +63,7 @@ Unity has no built-in speech. Put recordings in `Assets/Resources/Voice/` named 
 
 ### Headless smoke test
 
-Plays every truck, all three worlds, each new obstacle, the sticker book, the parent corner and break screen (including save-and-reload checks) and a 160-second random session in landscape and portrait, and saves screenshots:
+Plays every truck, all four worlds, each new obstacle, the sticker book, the parent corner and break screen (including save-and-reload checks) and a 240-second random session in landscape and portrait, and saves screenshots:
 
 ```bash
 unity run <project path> -- -executeMethod BigWheels.EditorTools.BigWheelsEditor.Smoke -shotDir <output dir>

@@ -61,6 +61,9 @@ namespace BigWheels
             clips["hoho"] = Compose("hoho", new Voice(Wave.Tri, 270, 200, .2f, .24f), new Voice(Wave.Tri, 270, 200, .2f, .24f, .28f));
             clips["tada"] = Compose("tada", new Voice(Wave.Tri, 523, 0, .12f, .22f), new Voice(Wave.Tri, 659, 0, .12f, .22f, .09f), new Voice(Wave.Tri, 784, 0, .12f, .22f, .18f),
                 new Voice(Wave.Tri, 1047, 0, .5f, .25f, .27f), new Voice(Wave.Square, 1047, 0, .35f, .06f, .27f));
+            clips["hoot"] = Compose("hoot", new Voice(Wave.Sine, 420, 340, .32f, .26f), new Voice(Wave.Sine, 420, 330, .4f, .26f, .42f), new Voice(Wave.Tri, 210, 170, .32f, .1f));
+            clips["yip"] = Compose("yip", new Voice(Wave.Square, 700, 1150, .1f, .1f), new Voice(Wave.Square, 1150, 800, .13f, .1f, .14f), new Voice(Wave.Square, 700, 1150, .1f, .1f, .38f));
+            clips["huff"] = Compose("huff", new Voice(Wave.Noise, 1600, 400, .22f, .35f), new Voice(Wave.Noise, 1600, 400, .22f, .35f, .3f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));

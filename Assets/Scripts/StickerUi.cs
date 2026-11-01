@@ -88,7 +88,7 @@ namespace BigWheels
         void FitBook()
         {
             if (cw < 100f) return;
-            int cols = cw > ch ? 7 : 4, rows = Mathf.CeilToInt(N / (float)cols);
+            int cols = cw > ch ? 8 : 4, rows = Mathf.CeilToInt(N / (float)cols);
             float header = 120f;
             float cell = Mathf.Min(200f, (cw - 48f - (cols - 1) * 12f) / cols, (ch - header - 30f - (rows - 1) * 12f) / rows);
             cell = Mathf.Max(40f, cell);
