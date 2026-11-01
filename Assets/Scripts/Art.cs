@@ -239,8 +239,8 @@ namespace BigWheels
             });
             Mud = Make(-20, -20, 20, 20, Vector2.zero, p =>
             {
-                p.Fill(Shapes.Ellipse(0, 0, 14, 11), Palette.Mud);
-                p.Fill(Shapes.Circle(15, -6, 4), Palette.Mud);
+                p.Fill(Shapes.Ellipse(0, 0, 14, 11), Color.white);
+                p.Fill(Shapes.Circle(15, -6, 4), Color.white);
             });
 
             Wheel = Make(-50, -50, 50, 50, Vector2.zero, p =>
@@ -400,7 +400,7 @@ namespace BigWheels
             }
         }
 
-        static Sprite MakeHill(float period, float wl, float amp, float extra, Color col)
+        public static Sprite MakeHill(float period, float wl, float amp, float extra, Color col)
         {
             int w = Mathf.CeilToInt(period), h = Mathf.CeilToInt(amp + extra);
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
@@ -421,7 +421,7 @@ namespace BigWheels
             return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0, 0), 100f, 0, SpriteMeshType.FullRect);
         }
 
-        static Sprite Make(float x0, float y0, float x1, float y1, Vector2 pivot, Action<Painter> draw)
+        public static Sprite Make(float x0, float y0, float x1, float y1, Vector2 pivot, Action<Painter> draw)
         {
             var p = new Painter(x0, y0, x1, y1, pivot);
             draw(p);

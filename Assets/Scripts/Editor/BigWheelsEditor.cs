@@ -45,6 +45,11 @@ namespace BigWheels.EditorTools
             EditorApplication.Exit(0);
         }
 
+        static void Step(Game g, int frames, System.Action<int> each = null)
+        {
+            for (int f = 0; f < frames; f++) { each?.Invoke(f); g.Tick(1f / 60f); }
+        }
+
         static void Run(int w, int h, string dir, string tag)
         {
             Random.InitState(7);
@@ -56,19 +61,60 @@ namespace BigWheels.EditorTools
             var cam = Camera.main;
             var rt = new RenderTexture(w, h, 24) { antiAliasing = 1 };
             cam.targetTexture = rt;
+            string P(string n) => Path.Combine(dir, tag + "_" + n + ".png");
 
-            Shot(cam, rt, Path.Combine(dir, tag + "_0_attract.png"));
+            Shot(cam, rt, P("00_attract"));
             g.StartGame();
-            int shot = 1;
-            int flips = 0;
-            for (int f = 0; f < 60 * 40; f++)
+
+            // every truck type, with all three costumes on, crushing a car and popping balloons
+            for (int t = 0; t < 4; t++)
             {
-                if (f % 90 == 45) g.Act();
-                if (f % 90 == 70 && ++flips % 2 == 0) g.Act();
-                g.Tick(1f / 60f);
-                if (f == 150 || f == 600 || f == 1200 || f == 2000) Shot(cam, rt, Path.Combine(dir, $"{tag}_{shot++}.png"));
+                g.SetTruck(t);
+                for (int i = 0; i < 3; i++) if (!g.Costume[i]) g.ToggleCostume(i);
+                g.SetColor((t * 2 + 1) % 7);
+                g.DebugSpawn('c', 330); g.DebugSpawn('b', 520);
+                int shotAt = t == 2 ? 70 : 105;
+                Step(g, shotAt + 1, f => { if (f == 55) g.Act(); if (f == 75 && t == 2) g.Act(); });
+                Shot(cam, rt, P("1" + t + "_truck_" + Trucks.All[t].Name));
+                Step(g, 160);
             }
-            Debug.Log($"[BigWheels] {tag}: slots={g.Slots} objs={g.ObjectCount} worldX={g.WorldX:F0} h={g.TruckHeight:F1}");
+            for (int i = 0; i < 3; i++) if (g.Costume[i]) g.ToggleCostume(i);
+            g.SetTruck(0); g.SetColor(0);
+
+            // beach world with its animals
+            g.SetWorld(1); g.DebugAnimal(3, 260); g.DebugAnimal(4, 480);
+            Step(g, 70);
+            Shot(cam, rt, P("20_beach"));
+            g.Tap(new Vector2(w * .5f, h * .5f));      // tap the middle of the screen (jump)
+            Step(g, 60);
+            Shot(cam, rt, P("21_beach_jump"));
+
+            // farm world: animals, then each new obstacle on its own
+            g.SetWorld(0); g.DebugAnimal(0, 250); g.DebugAnimal(1, 520); g.DebugAnimal(2, 760);
+            Step(g, 200);
+            g.DebugSpawn('t', 330);
+            Step(g, 112); Shot(cam, rt, P("30_trampoline"));
+            Step(g, 200);
+            g.DebugSpawn('j', 330);
+            Step(g, 88); Shot(cam, rt, P("31_jelly"));
+            Step(g, 200);
+            g.DebugSpawn('s', 330);
+            Step(g, 100); Shot(cam, rt, P("32_stream"));
+            Step(g, 200);
+            int s = 0;
+
+            // long random-ish session, cycling trucks and worlds, to shake out exceptions
+            Step(g, 60 * 90, f =>
+            {
+                if (f % 100 == 20) g.Act();
+                if (f % 100 == 55) g.Act();
+                if (f % 600 == 0) g.SetTruck((f / 600) % 4);
+                if (f % 900 == 0) g.ToggleCostume((f / 900) % 3);
+                if (f % 1000 == 0) g.SetColor((f / 1000) % 7);
+                if (f == 60 * 76) s = 1;
+            });
+            Shot(cam, rt, P("40_end"));
+            Debug.Log($"[BigWheels] {tag}: slots={g.Slots} objs={g.ObjectCount} animals={g.AnimalCount} world={g.World} worldX={g.WorldX:F0}");
             cam.targetTexture = null; rt.Release();
             Object.DestroyImmediate(go);
             foreach (var c in Object.FindObjectsByType<Canvas>()) Object.DestroyImmediate(c.gameObject);

@@ -10,8 +10,8 @@ namespace BigWheels
         enum Wave { Sine, Square, Tri, Saw, Noise }
         struct Voice
         {
-            public Wave W; public float F0, F1, Dur, Vol, Delay;
-            public Voice(Wave w, float f0, float f1, float dur, float vol, float delay = 0) { W = w; F0 = f0; F1 = f1 <= 0 ? f0 : f1; Dur = dur; Vol = vol; Delay = delay; }
+            public Wave W; public float F0, F1, Dur, Vol, Delay, Vib;
+            public Voice(Wave w, float f0, float f1, float dur, float vol, float delay = 0, float vib = 0) { W = w; F0 = f0; F1 = f1 <= 0 ? f0 : f1; Dur = dur; Vol = vol; Delay = delay; Vib = vib; }
         }
 
         const int SR = 44100;
@@ -43,6 +43,18 @@ namespace BigWheels
                 new Voice(Wave.Tri, 523, 0, .32f, .25f), new Voice(Wave.Tri, 659, 0, .32f, .25f, .13f),
                 new Voice(Wave.Tri, 784, 0, .32f, .25f, .26f), new Voice(Wave.Tri, 1047, 0, .32f, .25f, .39f),
                 new Voice(Wave.Square, 1047, 0, .7f, .08f, .55f), new Voice(Wave.Square, 784, 0, .7f, .08f, .55f));
+            clips["beep"] = Compose("beep", new Voice(Wave.Square, 880, 0, .07f, .08f), new Voice(Wave.Square, 880, 0, .07f, .08f, .12f));
+            clips["lowhonk"] = Compose("lowhonk", new Voice(Wave.Square, 130, 0, .38f, .12f), new Voice(Wave.Square, 164, 0, .38f, .1f));
+            clips["siren"] = Compose("siren", new Voice(Wave.Tri, 650, 0, .28f, .16f), new Voice(Wave.Tri, 880, 0, .28f, .16f, .28f), new Voice(Wave.Tri, 650, 0, .28f, .16f, .56f));
+            clips["spray"] = Compose("spray", new Voice(Wave.Noise, 3500, 1200, .6f, .22f));
+            clips["munch"] = Compose("munch", new Voice(Wave.Noise, 900, 200, .15f, .3f), new Voice(Wave.Saw, 200, 80, .18f, .22f, .12f), new Voice(Wave.Noise, 900, 200, .15f, .3f, .3f));
+            clips["splat"] = Compose("splat", new Voice(Wave.Noise, 1000, 200, .25f, .3f), new Voice(Wave.Sine, 180, 70, .2f, .3f));
+            clips["tramp"] = Compose("tramp", new Voice(Wave.Sine, 200, 700, .3f, .3f), new Voice(Wave.Tri, 400, 1200, .25f, .12f, .05f));
+            clips["moo"] = Compose("moo", new Voice(Wave.Saw, 150, 105, .8f, .2f, 0, .03f), new Voice(Wave.Tri, 75, 60, .8f, .18f));
+            clips["baa"] = Compose("baa", new Voice(Wave.Saw, 330, 270, .7f, .14f, 0, .08f), new Voice(Wave.Tri, 165, 135, .7f, .1f, 0, .08f));
+            clips["quack"] = Compose("quack", new Voice(Wave.Square, 520, 380, .09f, .12f), new Voice(Wave.Square, 500, 360, .09f, .12f, .12f));
+            clips["squawk"] = Compose("squawk", new Voice(Wave.Saw, 900, 500, .25f, .12f, 0, .04f), new Voice(Wave.Saw, 800, 480, .22f, .12f, .24f, .04f));
+            clips["crab"] = Compose("crab", new Voice(Wave.Noise, 4000, 2000, .04f, .35f), new Voice(Wave.Noise, 4000, 2000, .04f, .35f, .09f), new Voice(Wave.Noise, 4000, 2000, .04f, .35f, .18f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));
@@ -52,7 +64,7 @@ namespace BigWheels
             engine.clip = EngineLoop();
         }
 
-        public static void Play(string name) { if (!muted && src && clips.TryGetValue(name, out var c)) src.PlayOneShot(c); }
+        public static void Play(string name, float vol = 1f) { if (!muted && src && clips.TryGetValue(name, out var c)) src.PlayOneShot(c, vol); }
         public static void Pop(int i) { if (!muted && src) src.PlayOneShot(pops[i % pops.Length]); }
         public static void Blip() { if (!muted && src) src.PlayOneShot(blips[UnityEngine.Random.Range(0, blips.Length)]); }
 
@@ -85,7 +97,7 @@ namespace BigWheels
                 for (int i = 0; i < len && s0 + i < n; i++)
                 {
                     float t = i / (float)SR, k = t / v.Dur;
-                    float f = v.F0 * Mathf.Pow(v.F1 / v.F0, k);
+                    float f = v.F0 * Mathf.Pow(v.F1 / v.F0, k) * (1f + v.Vib * Mathf.Sin(t * 6.5f * Mathf.PI * 2f));
                     float env = t < .012f ? v.Vol * (t / .012f) : v.Vol * Mathf.Exp(-decay * (t - .012f) / (v.Dur - .012f));
                     float s;
                     if (v.W == Wave.Noise)
