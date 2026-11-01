@@ -64,6 +64,15 @@ namespace BigWheels
             clips["hoot"] = Compose("hoot", new Voice(Wave.Sine, 420, 340, .32f, .26f), new Voice(Wave.Sine, 420, 330, .4f, .26f, .42f), new Voice(Wave.Tri, 210, 170, .32f, .1f));
             clips["yip"] = Compose("yip", new Voice(Wave.Square, 700, 1150, .1f, .1f), new Voice(Wave.Square, 1150, 800, .13f, .1f, .14f), new Voice(Wave.Square, 700, 1150, .1f, .1f, .38f));
             clips["huff"] = Compose("huff", new Voice(Wave.Noise, 1600, 400, .22f, .35f), new Voice(Wave.Noise, 1600, 400, .22f, .35f, .3f));
+            clips["crash"] = Compose("crash", new Voice(Wave.Noise, 2200, 250, .35f, .5f), new Voice(Wave.Noise, 900, 150, .3f, .4f, .04f), new Voice(Wave.Sine, 110, 50, .28f, .5f),
+                new Voice(Wave.Noise, 3500, 1500, .05f, .3f, .12f), new Voice(Wave.Noise, 3500, 1500, .05f, .3f, .19f), new Voice(Wave.Noise, 3500, 1500, .05f, .25f, .27f));
+            clips["crunch"] = Compose("crunch", new Voice(Wave.Noise, 1200, 200, .22f, .45f), new Voice(Wave.Noise, 2500, 300, .18f, .35f, .06f), new Voice(Wave.Square, 140, 60, .2f, .18f),
+                new Voice(Wave.Noise, 3000, 1200, .05f, .3f, .15f), new Voice(Wave.Noise, 3000, 1200, .05f, .3f, .22f));
+            clips["strike"] = Compose("strike", new Voice(Wave.Sine, 90, 50, .2f, .4f), new Voice(Wave.Tri, 1500, 900, .08f, .15f, .03f),
+                new Voice(Wave.Noise, 4000, 1500, .05f, .4f), new Voice(Wave.Noise, 4000, 1500, .05f, .4f, .05f), new Voice(Wave.Noise, 4000, 1500, .05f, .35f, .11f),
+                new Voice(Wave.Noise, 4000, 1500, .05f, .35f, .17f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .26f), new Voice(Wave.Noise, 4000, 1500, .05f, .3f, .34f));
+            clips["turbo"] = Compose("turbo", new Voice(Wave.Saw, 120, 520, .6f, .22f), new Voice(Wave.Square, 240, 1040, .5f, .1f, .05f), new Voice(Wave.Noise, 800, 4000, .5f, .25f),
+                new Voice(Wave.Tri, 1047, 0, .15f, .2f, .5f), new Voice(Wave.Tri, 1319, 0, .2f, .2f, .6f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));

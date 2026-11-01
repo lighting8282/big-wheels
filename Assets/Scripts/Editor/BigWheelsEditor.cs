@@ -121,6 +121,24 @@ namespace BigWheels.EditorTools
             g.DebugSpawn('s', 330);
             Step(g, 100); Shot(cam, rt, P("32_stream"));
             Step(g, 200);
+
+            // smashable props: crates, a brick wall, bowling pins, then the turbo boost
+            g.DebugSpawn('k', 330);
+            Step(g, 66); Shot(cam, rt, P("33_crates"));
+            Step(g, 200);
+            g.DebugSpawn('m', 330);
+            Step(g, 64); Shot(cam, rt, P("34_wall"));
+            Step(g, 200);
+            g.DebugSpawn('n', 330);
+            Step(g, 64); Shot(cam, rt, P("35_pins"));
+            Step(g, 200);
+            g.DebugTurbo(); g.DebugSpawn('m', 420); g.DebugSpawn('k', 800);
+            Step(g, 50); Shot(cam, rt, P("36_turbo"));
+            Step(g, 40); Shot(cam, rt, P("37_turbo_smash"));
+            Debug.Log($"[BigWheels] {tag}: turbo={g.Turbo} speedMul={g.SpeedMul:F2} (expect True ~1.5)");
+            Step(g, 60 * 7);
+            Debug.Log($"[BigWheels] {tag}: after turbo={g.Turbo} speedMul={g.SpeedMul:F2} charge={g.Charge} (expect False ~1.00)");
+            Step(g, 200);
             int s = 0;
 
             // parent corner, break screen, and a locked world

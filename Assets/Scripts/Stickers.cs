@@ -8,7 +8,7 @@ namespace BigWheels
     /// </summary>
     public static class Stickers
     {
-        public const int Count = 29;
+        public const int Count = 31;   // keep this at 31 or fewer: the mask is an int and a negative mask means "not loaded"
         const string MaskKey = "bw_stickers", SeenKey = "bw_seen";
         static int mask = -1, seen = -1;
 
@@ -65,6 +65,9 @@ namespace BigWheels
             defs[24] = new Def { Icon = Art.SunNormal, Bg = featBg, Sfx = "sparkle" };
             defs[25] = new Def { Icon = Art3.MoonSky, Bg = Palette.Hex("#c9c9f5"), Sfx = "swoosh" };
             for (int k = 0; k < 3; k++) defs[26 + k] = new Def { Icon = Art2.Animal[8 + k], Bg = animalBg, Sfx = animalSfx[8 + k] };
+            SmashArt.Build();
+            defs[29] = new Def { Icon = SmashArt.Wall, Bg = featBg, Sfx = "crunch" };
+            defs[30] = new Def { Icon = SmashArt.Flame, Bg = featBg, Sfx = "turbo" };
         }
     }
 
