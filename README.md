@@ -10,6 +10,7 @@ A no-lose monster truck toy for a 3-year-old, made in Unity. There is no text, n
 - **Jelly piles** splat in bright colors and stick to the truck. **Mud puddles** do the same in brown. The **stream** (with ducks) and the **car wash** clean the truck off.
 - **Animals** wait by the road and cheer as the truck passes. Tap one to hear it. Farm: cow, sheep, duck. Beach: crab, seagull. Snow: penguin, polar bear, snowman.
 - **Tap the sun** to change the world. It also changes by itself about every 75 seconds (farm, beach, snow).
+- **Sticker book:** the first time you discover something (each truck, each animal you tap, each world, and ten things to try), a sticker pops up and flies to the book button in the top-left corner. Tap the book to see all 25 slots. Grey silhouettes are still to find, and tapping an earned one plays its sound. Stickers are saved between sessions.
 
 ### Picture buttons
 
@@ -37,6 +38,7 @@ Everything is generated in code, so there are no art or audio files to manage.
 | `Assets/Scripts/Art.cs`, `Art2.cs` | Software rasteriser that draws every sprite at startup (Art2: animals, new obstacles, beach and snow worlds, costumes) |
 | `Assets/Scripts/Sfx.cs` | Synthesised sound effects, animal sounds and the engine loop |
 | `Assets/Scripts/Hud.cs` | Picture-only UI (counting slots, color swatches, truck and costume buttons, sound, play) |
+| `Assets/Scripts/Stickers.cs`, `StickerUi.cs` | The 25 stickers (saved in PlayerPrefs), their small icons, and the sticker book screen |
 | `Assets/Scripts/Editor/BigWheelsEditor.cs` | Project setup and a headless smoke test |
 
 Positions use "logical pixels" (y down, 100 px = 1 Unity unit), matching the original web prototype, so tuning numbers carry over.
@@ -47,7 +49,7 @@ Unity has no built-in speech. Put recordings in `Assets/Resources/Voice/` named 
 
 ### Headless smoke test
 
-Plays every truck, all three worlds, each new obstacle and a 90-second random session in landscape and portrait, and saves screenshots:
+Plays every truck, all three worlds, each new obstacle, the sticker book (including a save-and-reload check) and a 160-second random session in landscape and portrait, and saves screenshots:
 
 ```bash
 unity run <project path> -- -executeMethod BigWheels.EditorTools.BigWheelsEditor.Smoke -shotDir <output dir>
@@ -56,6 +58,8 @@ unity run <project path> -- -executeMethod BigWheels.EditorTools.BigWheelsEditor
 ## Status
 
 Verified through the headless smoke test only. Not yet tried in Play mode, on a touchscreen, or with sound on a real device.
+
+To reset the sticker book, delete the PlayerPrefs keys `bw_stickers` and `bw_seen`.
 
 ## License
 

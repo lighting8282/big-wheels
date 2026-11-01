@@ -58,6 +58,8 @@ namespace BigWheels
             clips["peng"] = Compose("peng", new Voice(Wave.Square, 600, 950, .08f, .1f), new Voice(Wave.Square, 950, 520, .1f, .1f, .1f), new Voice(Wave.Square, 600, 950, .08f, .1f, .26f));
             clips["roar"] = Compose("roar", new Voice(Wave.Saw, 125, 85, .7f, .2f, 0, .05f), new Voice(Wave.Noise, 700, 200, .6f, .12f));
             clips["hoho"] = Compose("hoho", new Voice(Wave.Tri, 270, 200, .2f, .24f), new Voice(Wave.Tri, 270, 200, .2f, .24f, .28f));
+            clips["tada"] = Compose("tada", new Voice(Wave.Tri, 523, 0, .12f, .22f), new Voice(Wave.Tri, 659, 0, .12f, .22f, .09f), new Voice(Wave.Tri, 784, 0, .12f, .22f, .18f),
+                new Voice(Wave.Tri, 1047, 0, .5f, .25f, .27f), new Voice(Wave.Square, 1047, 0, .35f, .06f, .27f));
             pops = new AudioClip[Notes.Length];
             for (int i = 0; i < pops.Length; i++)
                 pops[i] = Compose("pop" + i, new Voice(Wave.Sine, Notes[i], 0, .3f, .3f), new Voice(Wave.Noise, 6000, 2000, .06f, .25f));
@@ -72,6 +74,7 @@ namespace BigWheels
         public static void Blip() { if (!muted && src) src.PlayOneShot(blips[UnityEngine.Random.Range(0, blips.Length)]); }
 
         public static void StartEngine() { if (engine && !engine.isPlaying) engine.Play(); }
+        public static void PauseEngine(bool p) { if (engine) engine.volume = p ? 0f : .05f; }
         public static void SetEngine(float freq) { if (engine) engine.pitch = freq / 48f; }
 
         /// <summary>Plays Resources/Voice/&lt;word&gt;.* if you add recordings; silent otherwise.</summary>

@@ -25,6 +25,7 @@ namespace BigWheels
         readonly VerticalLayoutGroup sideLayout;
         readonly GameObject play;
         bool needLayout = true;
+        StickerUi sticker;
         int lastColor = -1;
         Vector2 lastScreen;
 
@@ -35,7 +36,7 @@ namespace BigWheels
             var canvas = cgo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 1f; canvas.sortingOrder = 100;
             var cs = cgo.GetComponent<CanvasScaler>();
-            cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; cs.referenceResolution = new Vector2(1000, 700); cs.matchWidthOrHeight = 0f;
+            cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; cs.referenceResolution = new Vector2(1000, 700); cs.matchWidthOrHeight = .5f;
 
             if (Object.FindAnyObjectByType<EventSystem>() == null)
                 new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
@@ -109,6 +110,7 @@ namespace BigWheels
             var tri = Rt("Triangle", playRt); Anchor(tri, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(8, 0), new Vector2(170, 170));
             Img(tri, Art.PlayTriangle, Color.white).raycastTarget = false;
             play = playRt.gameObject;
+            sticker = new StickerUi(game, cgo.transform, safe);
         }
 
         public void Refresh(Game g)
@@ -124,6 +126,7 @@ namespace BigWheels
                 safe.offsetMin = safe.offsetMax = Vector2.zero;
             }
             if (needLayout) FitLayout();
+            sticker.Refresh(g.Clock);
             play.SetActive(!g.Started);
             if (!g.Started) playRt.localScale = Vector3.one * (1f + .08f * Mathf.Sin(g.Clock * 5f));
 
@@ -152,6 +155,11 @@ namespace BigWheels
             }
         }
 
+        public void Reward(int id) => sticker.Show(id);
+        public void OpenBook() => sticker.Open();
+        public void CloseBook() => sticker.Close();
+        public bool BookOpen => sticker.IsOpen;
+
         /// <summary>Scale the picture buttons so they fit narrow phones and short landscape screens.</summary>
         void FitLayout()
         {
@@ -167,6 +175,7 @@ namespace BigWheels
             float sndS = Mathf.Min(84f, sw * 1.1f);
             sndRt.sizeDelta = new Vector2(sndS, sndS); sndRt.anchoredPosition = new Vector2(-18, -18);
             sndIcon.rectTransform.sizeDelta = new Vector2(sndS * .62f, sndS * .62f);
+            sticker.Fit(cw, ch, sndS);
 
             float top = 18 + sndS + 10;
             float bs = Mathf.Clamp((ch - top - 24 - 7 * 8 - 10) / 7f, 36f, 64f);

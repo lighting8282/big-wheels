@@ -39,6 +39,20 @@ namespace BigWheels
         public int ColorIndex, TruckType, World;
         public bool[] Costume = new bool[3];            // 0 party hat, 1 big eyes, 2 flag
         public float Clock => t;
+        bool paused;
+        /// <summary>True while the sticker book is open: the world stands still.</summary>
+        public bool Paused { get => paused; set { paused = value; Sfx.PauseEngine(value); } }
+        public void OpenBook() => hud.OpenBook();
+        public void CloseBook() => hud.CloseBook();
+
+        /// <summary>Gives a sticker the first time something is discovered, with a pop-up that flies to the book.</summary>
+        void Award(int id)
+        {
+            if (!Started || hud == null) return;
+            if (!Stickers.Add(id)) return;
+            hud.Reward(id); Sfx.Play("tada"); Sfx.Say("yay", false);
+            Stars(worldX + Wl * .5f, Hl * .35f, 16, new[] { Palette.Sun, Color.white, Palette.Hex("#ff6eb4") }, 360);
+        }
         float worldTimer, wipeT, sunBounce, digT, lidT, sprayT, sirenCd, snowFade;
         const int Flakes = 70;
         readonly float[] flakeX = new float[Flakes], flakeY = new float[Flakes], flakeS = new float[Flakes];
@@ -100,7 +114,7 @@ namespace BigWheels
             if (I != null && I != this) return;
             I = this;
             Application.targetFrameRate = 60; Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            Art.Build(); Art2.Build(); Trucks.Build();
+            Art.Build(); Art2.Build(); Art3.Build(); Trucks.Build();
             Sfx.Init(gameObject);
 
             mat = Resources.Load<Material>("SpriteUnlit");
@@ -158,7 +172,7 @@ namespace BigWheels
 
         void ApplyTheme(int w)
         {
-            World = w; var th = themes[w];
+            World = w; var th = themes[w]; Award(12 + w);
             sky.sprite = th.sky; cam.backgroundColor = th.bg;
             for (int i = 0; i < 2; i++) { hillFar[i].sprite = th.hillFar; hillNear[i].sprite = th.hillNear; }
             grass.color = th.grass; dirt.color = th.dirt; dirtEdge.color = th.dirtDk;
@@ -220,7 +234,7 @@ namespace BigWheels
         public void Tick(float dt)
         {
             ComputeLayout();
-            UpdateSim(dt);
+            if (!paused) UpdateSim(dt);
             Render();
             hud.Refresh(this);
         }
@@ -250,17 +264,18 @@ namespace BigWheels
         /// <summary>A tap at a screen position: sun, animals and the world all react before the truck jumps.</summary>
         public void Tap(Vector2 px)
         {
+            if (paused) return;
             if (!Started) { StartGame(); return; }
             float lx = px.x / S, ly = (H - px.y) / S;
             if ((new Vector2(lx, ly) - SunPos).sqrMagnitude < 75f * 75f) { SunTap(); return; }
             foreach (var a in animals)
-                if (Mathf.Abs(lx - (a.x - worldX)) < 62 && ly > GY - 95 && ly < GY + 18) { Poke(a, 1f); return; }
+                if (Mathf.Abs(lx - (a.x - worldX)) < 62 && ly > GY - 95 && ly < GY + 18) { Poke(a, 1f); Award(4 + a.kind); return; }
             Act();
         }
 
         void SunTap()
         {
-            sunBounce = 1; Sfx.Play("sparkle");
+            sunBounce = 1; Sfx.Play("sparkle"); Award(24);
             if (wipeT <= 0) StartWipe();
         }
 
@@ -268,6 +283,7 @@ namespace BigWheels
 
         public void Act()
         {
+            if (paused) return;
             if (!Started) { StartGame(); return; }
             if (!truck.air)
             {
@@ -309,6 +325,7 @@ namespace BigWheels
             Started = true; Sfx.StartEngine();
             Slots = 0; Celeb = 0; System.Array.Clear(SlotPop, 0, SlotCount);
             Horn(); Sfx.Play("boing");
+            Award(TruckType); Award(12 + World);
         }
 
         public void SetColor(int i)
@@ -327,7 +344,7 @@ namespace BigWheels
         {
             if (!Started) StartGame();
             if (i == TruckType) { truck.bobV += 300; Horn(); return; }
-            TruckType = i; RebuildTruck(); truck.bobV += 400;
+            TruckType = i; RebuildTruck(); truck.bobV += 400; Award(i);
             Sfx.Play("sparkle"); Horn();
             Stars(worldX + TX, BASE - truck.h - 90, 14, new[] { Palette.Sun, Color.white, Palette.Truck[ColorIndex] }, 320);
         }
@@ -335,7 +352,7 @@ namespace BigWheels
         public void ToggleCostume(int i)
         {
             if (!Started) StartGame();
-            Costume[i] = !Costume[i]; ApplyCostumes(); truck.bobV += 250;
+            Costume[i] = !Costume[i]; ApplyCostumes(); truck.bobV += 250; if (Costume[i]) Award(23);
             Sfx.Play("sparkle");
             Stars(worldX + TX, BASE - truck.h - 120, 8, new[] { Palette.Sun, Color.white }, 240);
         }
@@ -362,7 +379,7 @@ namespace BigWheels
                 Sfx.Play("thump");
                 Stars(cx, BASE - 4, 8, new[] { Palette.Hex("#e9c9a0"), Palette.Hex("#d4aa7a"), Palette.Hex("#c58f5c") }, 200);
             }
-            if (truck.flipped) { truck.flipped = false; Confetti(cx, BASE - 140, 26, 360); Sfx.Play("sparkle"); }
+            if (truck.flipped) { truck.flipped = false; Confetti(cx, BASE - 140, 26, 360); Sfx.Play("sparkle"); Award(15); }
         }
 
         void Launch(float vh, bool autoFlip)
@@ -387,7 +404,7 @@ namespace BigWheels
             Sfx.Say(new[] { "one", "two", "three" }[n], true);
             if (Slots >= SlotCount)
             {
-                Celeb = 2.6f; Sfx.Play("fanfare");
+                Celeb = 2.6f; Sfx.Play("fanfare"); Award(17);
                 Confetti(worldX + TX, BASE - 200, 40, 500);
                 Sfx.Say("yay", true);
             }
@@ -397,7 +414,7 @@ namespace BigWheels
         {
             j.s = 1; j.sq = 0;
             Color col = Palette.Truck[Art2.JellyPalette[j.ci]];
-            Sfx.Play("splat");
+            Sfx.Play("splat"); Award(18);
             truck.bobV += 200;
             for (int i = 0; i < 16; i++)
                 AddPart(0, j.x + Random.Range(-50f, 50f), BASE - 40, Random.Range(-200f, 200f), Random.Range(-560f, -180f), 1500, Random.Range(5f, 11f), 0, 0, Random.Range(.5f, .9f), col);
@@ -640,13 +657,14 @@ namespace BigWheels
                             Sfx.Pop(popCombo++);
                             Confetti(bx, by, 14, 220); Stars(bx, by, 6, new[] { Palette.Truck[o.ci], Color.white }, 220);
                             Sfx.Say(Palette.Names[o.ci], false);
+                            Award(16);
                         }
                     }
                     break;
                 case 'p':
                     {
                         bool inside = Mathf.Abs(cx - o.x) < o.w / 2 + 10 && truck.h < 40;
-                        if (inside && !o.inside) { Sfx.Play("splash"); MudSplash(cx + 70, BASE + 4, 12, Palette.Mud); truck.bobV += 120; }
+                        if (inside && !o.inside) { Sfx.Play("splash"); MudSplash(cx + 70, BASE + 4, 12, Palette.Mud); Award(22); truck.bobV += 120; }
                         o.inside = inside;
                         if (inside)
                         {
@@ -667,7 +685,7 @@ namespace BigWheels
                         if (o.scare > 0) o.scare = Mathf.Max(0, o.scare - dt / .9f);
                         bool inside = Mathf.Abs(cx - o.x) < o.w / 2 + 10 && truck.h < 40;
                         var water = new Color(.45f, .78f, 1f);
-                        if (inside && !o.inside) { Sfx.Play("splash"); MudSplash(cx + 70, BASE + 4, 12, water); truck.bobV += 120; }
+                        if (inside && !o.inside) { Sfx.Play("splash"); MudSplash(cx + 70, BASE + 4, 12, water); Award(19); truck.bobV += 120; }
                         o.inside = inside;
                         if (inside)
                         {
@@ -685,7 +703,7 @@ namespace BigWheels
                     if (!truck.air && Mathf.Abs(cx - o.x) < 60 && truck.h < 25 && o.tm <= 0)
                     {
                         o.tm = .3f; Launch(950, true);
-                        Sfx.Play("tramp"); Horn(); truck.bobV += 200;
+                        Sfx.Play("tramp"); Award(20); Horn(); truck.bobV += 200;
                         Stars(o.x, BASE - 50, 8, new[] { Palette.Sun, Color.white, Palette.Hex("#3d8bff") }, 260);
                     }
                     break;
@@ -696,7 +714,7 @@ namespace BigWheels
                 case 'w':
                     if (Mathf.Abs(cx - o.x) < 150 && truck.h < 120)
                     {
-                        truck.washT -= dt;
+                        truck.washT -= dt; Award(21);
                         if (truck.washT <= 0)
                         {
                             truck.washT = .08f;

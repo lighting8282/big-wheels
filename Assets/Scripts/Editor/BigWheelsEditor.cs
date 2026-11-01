@@ -53,6 +53,7 @@ namespace BigWheels.EditorTools
         static void Run(int w, int h, string dir, string tag)
         {
             Random.InitState(7);
+            Stickers.ResetAll();
             Sfx.Muted = true;
             var go = new GameObject("Big Wheels");
             var g = go.AddComponent<Game>();
@@ -65,6 +66,9 @@ namespace BigWheels.EditorTools
 
             Shot(cam, rt, P("00_attract"));
             g.StartGame();
+            Step(g, 22);
+            Shot(cam, rt, P("01_first_sticker"));
+            Step(g, 60);
 
             // every truck type, with all three costumes on, crushing a car and popping balloons
             for (int t = 0; t < 4; t++)
@@ -122,6 +126,12 @@ namespace BigWheels.EditorTools
                 if (f == 60 * 76) s = 1;
             });
             Shot(cam, rt, P("40_end"));
+            g.OpenBook(); Step(g, 6);
+            Shot(cam, rt, P("50_book"));
+            int before = Stickers.Collected; Stickers.ForgetCache(); int after = Stickers.Collected;
+            g.CloseBook(); Step(g, 5);
+            Debug.Log($"[BigWheels] {tag}: stickers collected={before} after reload={after} (must match)");
+            Stickers.ResetAll();
             Debug.Log($"[BigWheels] {tag}: slots={g.Slots} objs={g.ObjectCount} animals={g.AnimalCount} world={g.World} worldX={g.WorldX:F0}");
             cam.targetTexture = null; rt.Release();
             Object.DestroyImmediate(go);
