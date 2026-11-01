@@ -109,7 +109,7 @@ namespace BigWheels
         readonly SpriteRenderer[] clouds = new SpriteRenderer[6], hillFar = new SpriteRenderer[2], hillNear = new SpriteRenderer[2];
         readonly float[] cloudX = new float[6], cloudY = new float[6], cloudS = new float[6];
         Transform truckRoot, pivot, bodyT, worldRoot;
-        readonly SpriteRenderer[] wheels = new SpriteRenderer[2], eyes = new SpriteRenderer[2], pupils = new SpriteRenderer[2];
+        readonly SpriteRenderer[] wheels = new SpriteRenderer[2], eyes = new SpriteRenderer[2], pupils = new SpriteRenderer[2], brows = new SpriteRenderer[2];
         readonly List<SpriteRenderer> mudSrs = new();
         Pool stems, petals, centers, pebbles, pDot, pStar, pSq, pBubble;
         Theme[] themes;
@@ -220,6 +220,10 @@ namespace BigWheels
                 eyes[i] = MakeSR("Eye", Art.EyeWhite, 2, bodyT);
                 eyes[i].transform.localPosition = new Vector3(d.Eyes[i].x / 100f, -d.Eyes[i].y / 100f, 0);
                 pupils[i] = MakeSR("Pupil", Art.Pupil, 3, eyes[i].transform);
+                brows[i] = MakeSR("Brow", Art.Brow, 4, eyes[i].transform);      // heavy slanted brows: determined, not cute
+                brows[i].transform.localPosition = new Vector3(0, .14f, 0);
+                brows[i].transform.localRotation = Quaternion.Euler(0, 0, i == 0 ? -24f : 24f);
+                brows[i].transform.localScale = Vector3.one * 1.1f;
                 wheels[i] = MakeSR("Wheel", Art.WheelToy[ColorIndex], 5, pivot);
                 wheels[i].transform.localPosition = new Vector3(d.WheelX[i] / 100f, (d.WheelR - d.PivotY) / 100f, 0);
                 wheels[i].transform.localScale = Vector3.one * (d.WheelR / 46f);
@@ -241,7 +245,7 @@ namespace BigWheels
         void ApplyCostumes()
         {
             hat.enabled = Costume[0]; pole.enabled = cloth.enabled = Costume[2];
-            for (int i = 0; i < 2; i++) eyes[i].transform.localScale = Vector3.one * (Def.EyeScale * (Costume[1] ? 1.45f : 1f));
+            for (int i = 0; i < 2; i++) eyes[i].transform.localScale = Vector3.one * (Def.EyeScale * .78f * (Costume[1] ? 1.45f : 1f));
         }
 
         public SpriteRenderer MakeSR(string name, Sprite s, int order, Transform parent = null)

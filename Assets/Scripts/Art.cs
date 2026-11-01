@@ -185,14 +185,14 @@ namespace BigWheels
 
     public static class Palette
     {
-        public static readonly Color Ink = Hex("#2b2a4c"), Sun = Hex("#ffd23f"), Sky1 = Hex("#74c8ff"), Sky2 = Hex("#e6f7ff"),
-            Hill1 = Hex("#a6e594"), Hill2 = Hex("#7fd56f"), Grass = Hex("#5cc45e"), Dirt = Hex("#b9794a"),
-            DirtLt = Hex("#cf9560"), DirtDk = Hex("#8f5a34"), Steel = Hex("#9aa0b4"), Glass = Hex("#d8f1ff"), White = Color.white,
+        public static readonly Color Ink = Hex("#1a1a2e"), Sun = Hex("#ffc933"), Sky1 = Hex("#4aa3f0"), Sky2 = Hex("#cde9ff"),
+            Hill1 = Hex("#7fc77a"), Hill2 = Hex("#5aa85f"), Grass = Hex("#4aa956"), Dirt = Hex("#a56a3f"),
+            DirtLt = Hex("#bb7f52"), DirtDk = Hex("#7d4a28"), Steel = Hex("#9aa0b4"), Glass = Hex("#d8f1ff"), White = Color.white,
             Mud = Hex("#6b4428");
         public static readonly string[] Names = { "red", "orange", "yellow", "green", "blue", "purple", "pink" };
         public static readonly Color[] Truck =
         {
-            Hex("#ff4b4b"), Hex("#ff9a1f"), Hex("#ffd23f"), Hex("#38c172"), Hex("#3d8bff"), Hex("#9b5cff"), Hex("#ff6eb4")
+            Hex("#e0243b"), Hex("#f06a1a"), Hex("#f4b81c"), Hex("#2fa04a"), Hex("#1f6fe0"), Hex("#7a3bd1"), Hex("#e0368f")
         };
         public static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out var c); return c; }
         public static Color Shade(Color c, float amt)
@@ -208,7 +208,7 @@ namespace BigWheels
         public static Sprite White, Dot, Square, Star, Bubble, Shadow, Sky;
         public static Sprite[] Body, Car, Balloon, SwatchNormal, SwatchSelected, WheelToy;
         static readonly int[] RimFor = { 4, 4, 5, 6, 2, 3, 4 };   // each tire color gets a contrasting rim color
-        public static Sprite Wheel, EyeWhite, Pupil, Mud, Ramp, Puddle, WashBack, Strip, SunNormal, SunHappy, SunRays, Cloud;
+        public static Sprite Wheel, Brow, EyeWhite, Pupil, Mud, Ramp, Puddle, WashBack, Strip, SunNormal, SunHappy, SunRays, Cloud;
         public static Sprite SpeakerOn, SpeakerOff, PlayTriangle, UiRing, UiRingFilled, SlotEmpty, Roundrect;
         public static Sprite HillFar, HillNear;
         public const float HillFarWl = 150f, HillNearWl = 110f;
@@ -238,6 +238,7 @@ namespace BigWheels
                 p.Fill(Shapes.Circle(0, 0, 8), ink);
                 p.Fill(Shapes.Circle(3, -3, 2.6f), Color.white);
             });
+            Brow = Make(-26, -9, 26, 9, Vector2.zero, p => p.Fill(Shapes.Capsule(-20, 0, 20, 0, 5.5f), ink));
             Mud = Make(-20, -20, 20, 20, Vector2.zero, p =>
             {
                 p.Fill(Shapes.Ellipse(0, 0, 14, 11), Color.white);
@@ -415,18 +416,11 @@ namespace BigWheels
 
         static void DrawSun(Painter p, bool happy)
         {
+            // a plain glowing sun, no face
             p.Fill(Shapes.Circle(0, 0, 48), Palette.Sun, 5);
-            p.Fill(Shapes.Ellipse(-16, -8, 5, 7), Palette.Ink);
-            p.Fill(Shapes.Ellipse(16, -8, 5, 7), Palette.Ink);
-            if (happy)
-            {
-                var half = Shapes.Circle(0, 8, 18);
-                p.Fill(half, Palette.Hex("#ff6e6e"), 4, null, new Shape(q => 8 - q.y, new Rect(-30, 8, 60, 30)));
-                p.Fill(Shapes.Capsule(-18, 8, 18, 8, 2f), Palette.Ink);
-            }
-            else p.Fill(Shapes.Arc(0, 6, 18, .2f * Mathf.PI, .8f * Mathf.PI, 2.5f), Palette.Ink);
-            p.Fill(Shapes.Circle(-28, 8, 6), new Color(1, .43f, .43f, .45f));
-            p.Fill(Shapes.Circle(28, 8, 6), new Color(1, .43f, .43f, .45f));
+            p.Fill(Shapes.Circle(0, 0, 38), Palette.Hex("#ffe27a"));
+            if (happy) p.Fill(Shapes.Circle(0, 0, 26), Palette.Hex("#fff3b0"));
+            p.Fill(Shapes.Ellipse(-14, -17, 13, 8), new Color(1, 1, 1, .6f));
         }
 
         static void DrawSpeaker(Painter p, bool on)

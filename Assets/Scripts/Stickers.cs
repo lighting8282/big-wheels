@@ -84,14 +84,8 @@ namespace BigWheels
             p.Fill(Shapes.Circle(0, 0, 48), Palette.Hex("#fff2b0"), 5);
             var crater = Palette.Hex("#efdc8c");
             p.Fill(Shapes.Circle(-26, -20, 8), crater); p.Fill(Shapes.Circle(24, -26, 6), crater); p.Fill(Shapes.Circle(28, 22, 9), crater);
-            p.Fill(Shapes.Ellipse(-16, -8, 5, 7), ink); p.Fill(Shapes.Ellipse(16, -8, 5, 7), ink);
-            if (happy)
-            {
-                p.Fill(Shapes.Circle(0, 8, 18), Palette.Hex("#ff6e6e"), 4, null, new Shape(q => 8 - q.y, new Rect(-30, 8, 60, 30)));
-                p.Fill(Shapes.Capsule(-18, 8, 18, 8, 2f), ink);
-            }
-            else p.Fill(Shapes.Arc(0, 6, 18, .2f * Mathf.PI, .8f * Mathf.PI, 2.5f), ink);
-            p.Fill(Shapes.Circle(-28, 8, 6), new Color(1, .5f, .55f, .4f)); p.Fill(Shapes.Circle(28, 8, 6), new Color(1, .5f, .55f, .4f));
+            if (happy) p.Fill(Shapes.Circle(0, 0, 36), Palette.Hex("#fffbe0"));   // brighter when tapped; no face
+            p.Fill(Shapes.Ellipse(-14, -17, 13, 8), new Color(1, 1, 1, .5f));
         }
 
         public static void Build()
